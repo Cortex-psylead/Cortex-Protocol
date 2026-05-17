@@ -11,3 +11,4 @@ matplotlib>=3.7.0
 # mne>=1.4.0          # EEG processing — Muse, OpenBCI, BrainFlow
 # brainflow>=5.10.0   # Universal BCI hardware SDK (OpenBCI, Muse, Neurosity)
 # pyserial>=3.5       # Serial port access for wired sensors
+scipy>=1.11.0
