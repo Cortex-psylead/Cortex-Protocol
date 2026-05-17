@@ -67,20 +67,71 @@ But governance is not a complete solution. This document is explicit about what 
 
 ## Governance Nodes: The Institutional Layer
 
-Governance Nodes are the external institutional partners that distribute the protocol's authority across independent institutions.
+Governance Nodes are the external institutional partners that distribute the protocol's authority across independent institutions. They are not advisory committees. Each node is a **structured technical institution** with two mandatory internal subcommittees. A node that does not maintain both subcommittees cannot issue valid Clinical Capability Modules.
 
-**A Governance Node is:** A university faculty, professional association, or research center formally joined to the governance network, holding a GPG keypair for signing Clinical Capability Modules.
+**A Governance Node is:** A university faculty, professional association, or research center formally joined to the governance network, holding a GPG keypair for signing Clinical Capability Modules, and maintaining the two subcommittees defined below.
 
-**What a Governance Node does:**
-- Issues signed CCMs authorizing specific protocol capabilities
-- Participates in the Annual Review Cycle with peer-reviewed evidence
-- Maintains a hardware whitelist for their deployment context
-- Provides institutional credibility for regulatory submissions
+---
 
-**What a Governance Node does NOT do:**
-- Hold veto power over other nodes' decisions
-- Represent commercial interests in governance processes
-- Self-certify products it manufactures or sells
+### Subcommittee A — Scientific Research & Resource Integrity
+
+This subcommittee maintains the scientific and institutional foundation of the node. It does not write code — it maintains the clinical and legal legitimacy that makes the node's signatures meaningful.
+
+**Scientific function (linked to ETHOS and Clinical Bridge):**
+- Reviews new peer-reviewed literature in neuroscience, psychophysiology, and clinical psychology relevant to existing protocol thresholds.
+- Proposes threshold updates to the White Branch during the Annual Review Cycle, supported by bibliographic evidence.
+- Monitors sensor technology developments that may require hardware certification updates.
+- Minimum composition: two licensed clinical or neuroscience professionals with active research affiliation.
+
+**Resource transparency function (institutional independence):**
+- Audits and publicly registers all funding sources sustaining the node.
+- Enforces the Funding Independence Rule: node funding may only originate from universities, public research grants, open-source foundations, or transparent private donations. Funding from technology corporations, AI developers, hardware manufacturers, or any entity with commercial interest in protocol threshold outcomes is permanently prohibited.
+- Publishes an annual funding transparency report as a condition of CCM renewal.
+- If a prohibited funding source is detected, the subcommittee triggers immediate node suspension pending White Branch review — regardless of whether the funding has influenced any decision.
+
+**Rationale:** A node whose funding is opaque or commercially compromised cannot be trusted to maintain threshold integrity. The resource transparency function is not administrative — it is the mechanism that makes the node's clinical authority credible.
+
+---
+
+### Subcommittee B — Technical Verification & Code Audit
+
+This subcommittee is the node's engineering arm. Its function is to audit the silicon — to verify that what runs on users' devices faithfully implements what the standard specifies.
+
+**CORTEX verification (linked to SAL and CDI):**
+- Audits reference implementations and third-party deployments claiming CORTEX compliance.
+- Verifies that the asynchronous State Buffer architecture (ARCHITECTURE-ASYNC.md) is correctly implemented: sensor silence defaults to BLOCKED, HMAC validation is present, and the AI pipeline has no synchronous coupling to the biometric thread.
+- Tests for raw biometric data leakage beyond the SAL boundary.
+- Verifies CDI threshold enforcement: hard and soft violation counters must be independent and not overridable by Acolyte logic.
+
+**KEROS and LIMES integrity verification:**
+- Audits GPG signatures on Clinical Capability Modules issued by the node and by other nodes within its oversight scope.
+- Verifies TPM attestation chains in KEROS-compliant deployments.
+- Monitors for advances in generative AI that may reduce the distinguishability of biological entropy from synthetic entropy, escalating to the White Branch when the annual LIMES entropy assessment warrants revision.
+- Issues Critical Security Alerts when an AI agent pathway to bypass the biometric gateway is detected — through prompt injection, State Buffer manipulation, or policy snapshot replay — triggering immediate protocol update under expedited review.
+
+**Minimum composition:** Two engineers or computer scientists with expertise in cryptographic systems, distributed architecture, or biometric signal processing.
+
+---
+
+### What a Governance Node Does
+
+- Issues signed CCMs — valid only when both subcommittees are active and the annual funding transparency report is current.
+- Participates in the Annual Review Cycle through Subcommittee A.
+- Maintains a hardware whitelist verified by Subcommittee B.
+- Publishes Critical Security Alerts when Subcommittee B detects implementation vulnerabilities or LIMES entropy degradation.
+- Provides institutional credibility for regulatory submissions and academic publications.
+
+### What a Governance Node Does NOT Do
+
+- Govern the core standard specification — that is the White Branch's role.
+- Hold veto power over other nodes' decisions.
+- Represent commercial interests in governance processes.
+- Issue CCMs without both subcommittees active and the funding transparency report current.
+- Accept funding from any entity with commercial interest in protocol threshold outcomes.
+
+### How to Become a Governance Node
+
+Open an Issue tagged `[Governance-Node-Application]`. The application must include: institutional affiliation, proposed composition of both subcommittees, funding sources and transparency mechanism, field of expertise, and commitment to the Annual Review Cycle and annual funding transparency reporting. Acceptance requires White Branch approval.
 
 **Current Governance Nodes:** *(None — Milestone 1 objective)*
 
