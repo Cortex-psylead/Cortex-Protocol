@@ -1,5 +1,5 @@
 # ============================================================================
-# cortex_protocol/sal/cognitive_shield_v2.py
+# cortex_protocol/src/sal/cognitive_shield_v2.py
 # Milestone 1 Preview: CORTEX + LIMES + ETHOS
 # 
 # CORRECTIONS APPLIED (based on audit):
