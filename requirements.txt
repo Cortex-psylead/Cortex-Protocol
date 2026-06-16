@@ -1,0 +1,5 @@
+# Cortex Protocol v0.5.1 — Python dependencies
+# Layer 3 SAL (runnable PoC)
+numpy>=1.24,<3.0
+scipy>=1.11,<2.0
+cryptography>=41.0,<44.0

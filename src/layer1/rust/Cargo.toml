@@ -1,0 +1,19 @@
+[package]
+name = "cortex-layer1"
+version = "0.5.1"
+edition = "2021"
+description = "Cortex Protocol Layer 1 — bare-metal firmware specification (no_std)"
+license = "GPL-3.0"
+
+[dependencies]
+# libm required for no_std float log (matrix_inspector.rs Shannon entropy)
+libm = { version = "0.2", default-features = false, optional = true }
+
+[features]
+default = []
+libm = ["dep:libm"]
+
+[profile.release]
+opt-level = "s"   # size-optimized for embedded
+debug = false
+lto = true

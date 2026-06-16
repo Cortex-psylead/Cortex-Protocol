@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex-protocol.org/schemas/v1/acolyte-manifest.json",
+  "title": "AcolyteCryptographicManifest",
+  "description": "Mandatory payload for any external AI agent (Acolyte) requesting access to the Cortex Protocol mediation layer. Validated by the KEROS gateway before any interaction is permitted.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "request_uuid",
+    "acolyte_hardware_id",
+    "functional_justification_hash",
+    "requested_capabilities_root",
+    "proof_of_work"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"],
+      "description": "Schema version — must match active Governance Node specification."
+    },
+    "request_uuid": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUIDv4. Unique per request. Prevents replay attacks."
+    },
+    "acolyte_hardware_id": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$",
+      "description": "SHA-256 hash of the Acolyte's hardware attestation key (TPM or equivalent). Registered in the Governance Node Merkle tree."
+    },
+    "functional_justification_hash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$",
+      "description": "SHA-256 of the plain-text clinical justification document. Allows audit without transmitting the justification text."
+    },
+    "requested_capabilities_root": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$",
+      "description": "Root of the Merkle tree of requested capability leaves. Each leaf: Hash(operation_id || resource || clinical_justification_hash)."
+    },
+    "proof_of_work": {
+      "type": "object",
+      "required": ["nonce", "difficulty", "hash_result"],
+      "additionalProperties": false,
+      "description": "Dynamic PoW puzzle (V-UX-03 anti-DoS). Difficulty scales exponentially with repeated MVD rejections from this acolyte_hardware_id.",
+      "properties": {
+        "nonce": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "difficulty": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64,
+          "description": "Number of leading zero bits required in hash_result."
+        },
+        "hash_result": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$",
+          "description": "SHA-256(request_uuid || nonce). Must satisfy difficulty requirement."
+        }
+      }
+    }
+  }
+}

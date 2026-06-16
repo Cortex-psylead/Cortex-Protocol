@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex-protocol.org/schemas/v1/white-branch-snapshot.json",
+  "title": "WhiteBranchExecutableSnapshot",
+  "description": "Governance snapshot issued by the White Branch. Contains clinical thresholds and post-quantum signature. Valid for maximum 12 months. Injected into TEE read-only region (.tee_ro_clinical_thresholds).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "timestamp_emission",
+    "timestamp_expiration",
+    "clinical_thresholds",
+    "governance_attestation"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$",
+      "description": "SHA-256 of the canonical JSON (RFC 8785 JCS) of this snapshot, excluding this field and governance_attestation."
+    },
+    "timestamp_emission": {
+      "type": "integer",
+      "minimum": 1700000000,
+      "description": "Unix timestamp of snapshot emission."
+    },
+    "timestamp_expiration": {
+      "type": "integer",
+      "description": "Must equal timestamp_emission + 31,536,000 (exactly 12 months). Enforced by hardware RTC in FIQ handler."
+    },
+    "clinical_thresholds": {
+      "type": "object",
+      "required": ["BIOMETRIC_HRV", "LATENCY_PUPILLARY", "NEURAL_ALPHA_BAND"],
+      "additionalProperties": false,
+      "properties": {
+        "BIOMETRIC_HRV": { "$ref": "#/$defs/ThresholdEntry" },
+        "LATENCY_PUPILLARY": { "$ref": "#/$defs/ThresholdEntry" },
+        "NEURAL_ALPHA_BAND": { "$ref": "#/$defs/ThresholdEntry" }
+      }
+    },
+    "governance_attestation": {
+      "type": "object",
+      "required": ["algorithm", "public_keys_merkle_root", "aggregated_signature", "quorum_threshold"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": ["Falcon-512", "Dilithium3", "Ed25519"],
+          "description": "Falcon-512 primary. Ed25519 fallback for constrained hardware without FPU."
+        },
+        "public_keys_merkle_root": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        },
+        "aggregated_signature": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]+$"
+        },
+        "quorum_threshold": {
+          "type": "object",
+          "required": ["m", "n"],
+          "description": "m-of-n signature quorum required from active Governance Nodes.",
+          "properties": {
+            "m": { "type": "integer", "minimum": 1 },
+            "n": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ThresholdEntry": {
+      "type": "object",
+      "required": ["u_min", "u_max", "unit", "literature_peer_review_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "u_min": { "type": "number" },
+        "u_max": { "type": "number" },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit (e.g. 'ms', 'normalized_0_1', 'uV'). Required for ZKP circuit input normalization."
+        },
+        "literature_peer_review_hash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$",
+          "description": "SHA-256 of the peer-reviewed publication that defines this threshold. Mandatory per White Branch accountability rules."
+        }
+      }
+    }
+  }
+}
