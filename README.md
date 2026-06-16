@@ -13,6 +13,7 @@
 </div>
 
 ---
+## English
 
 ## What is Cortex Protocol?
 Cortex Protocol is an **open, royalty-free technical standard** for protecting neurophysiological data sovereignty in environments where external AI agents interact with human biometric streams. 
@@ -21,6 +22,17 @@ It operates as a **Sovereignty Abstraction Layer (SAL)**—a local middleware th
 1. **Absolute Processing Locality:** Raw biological signals never leave the edge device; raw frames are completely destroyed from memory immediately after mathematical feature extraction.
 2. **Lossy Feature Projection:** AI agents receive only anonymized mathematical manifolds or restricted semantic tokens—never raw physiological timeseries.
 3. **Decentralized Clinical Gating:** Safety limits and the **Clinical Drift Index (CDI)** are governed by independent clinical institutions (White Branch) using peer-reviewed cryptographic snapshots, completely isolated from corporate commercial incentives.
+
+## Español
+
+## ¿Qué es Cortex Protocol?
+Cortex Protocol es un estándar técnico abierto y libre de regalías diseñado para garantizar la soberanía de los datos neurofisiológicos en entornos donde agentes externos de Inteligencia Artificial interactúan con flujos biométricos humanos.
+Piénsalo como lo que HTTPS hizo por el tráfico web, pero diseñado específicamente para el sistema nervioso humano y la protección de los neuroderechos.
+Opera como una Capa de Abstracción de Soberanía (SAL): un middleware local que se ejecuta entre los sensores de hardware neuronales/biométricos y los modelos de lenguaje o agentes autónomos de terceros. El protocolo garantiza tres pilares fundamentales:
+1. **Pilares Fundamentales de Soberanía**
+Localidad Absoluta del Procesamiento: Las señales biológicas crudas nunca salen del dispositivo periférico (edge device). Los marcos de datos puros (raw frames) se destruyen por completo de la memoria RAM inmediatamente después de la extracción matemática de características.
+2. **Proyección de Características con Pérdida (Lossy Feature Projection):** Los agentes de IA reciben únicamente variedades (manifolds) matemáticas anonimizadas o tokens semánticos restringidos, nunca las series temporales fisiológicas crudas. Esto hace imposible la reconstrucción inversa de la señal original.
+3. **Regulación Clínica Descentralizada (Clinical Gating):** Los límites de seguridad y el Índice de Deriva Clínica (CDI) están gobernados por instituciones clínicas independientes (White Branch) mediante instantáneas criptográficas revisadas por pares, quedando completamente aislados de cualquier incentivo comercial corporativo.
 
 ---
 
