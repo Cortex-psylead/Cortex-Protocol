@@ -225,5 +225,3 @@ No raw biometric data leaves the device at any point.
 ```
 This is the technical path by which the CDI evolves from a static threshold system to a population-calibrated adaptive model without violating individual privacy.
 *Document ID: ROADMAP-CLINICAL-001 | Version: 1.1-draft | Last updated: 2026-06-16*
-```
-```
