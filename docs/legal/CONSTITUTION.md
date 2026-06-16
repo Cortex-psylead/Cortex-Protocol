@@ -70,3 +70,86 @@ void filter_biometric_signal_phi(const double* raw_signal, double* out_signal, s
         out_signal[i+1] = aprox - noise;
     }
 }
+```
+### Article 5: The Minimum Viable Data Firewall (MVD)
+No informational flow shall breach the local frontier unless it successfully undergoes evaluation by the minimum viable logical operator \Psi. If an *Acolyte* demands data parameters exceeding the operational schema approved in the manifest signed by the White Branch, the cryptographic session shall be aborted ipso facto by algebraic consensus failure, permanently denying access.
+### Article 6: The Asymmetric Flow Bifurcation (\Delta_{\text{split}})
+The knowledge generated from processing the biological data of the human subject shall be divided in a binary and irreversible manner through the operator \Delta_{\text{split}}:
+ * **Inward Bound (Local Insight):** All predictive analysis, psychometric evaluation, or behavioral profiling shall be retained under absolute local processing within the secure environment. Its storage within external cloud systems is strictly prohibited.
+ * **Outward Bound (External Donation):** The transfer of aggregated data for scientific or common governance purposes shall require mathematical anonymization via the local injection of Local Differential Privacy (\epsilon, \delta), dynamically parameterized by the White Branch.
+## CHAPTER III: ANTISYNTHETIC VALIDATION AND CLOCK PROTECTION (LIMES)
+### Article 7: The Interception of Synthetic Telemetry
+The protocol shall implement a real-time origin validation module named **LIMES**, whose sole purpose is to prevent the massive injection of artificial telemetry (data replay attacks or biological signal *Deepfakes*) designed to saturate or corrupt the system.
+#### Technical Specification of the LIMES Module (Rust)
+The LIMES module shall evaluate the physical entropy of the hardware environment by executing Shannon entropy analysis over the jitter accumulated in the local silicon crystal clock (*Hardware Clock Jitter*) against the system timer. Any signal lacking statistical correlation with the thermodynamic imperfections inherent to real hardware shall be classified as synthetic telemetry and immediately discarded.
+```rust
+#![no_std]
+use core::sync::atomic::{AtomicBool, Ordering};
+pub struct LimesDetector {
+    threshold_entropy: f64,
+    attack_vector_triggered: AtomicBool,
+}
+impl LimesDetector {
+    pub const fn new(min_entropy: f64) -> Self {
+        Self {
+            threshold_entropy: min_entropy,
+            attack_vector_triggered: AtomicBool::new(false),
+        }
+    }
+    /// Evaluates Shannon entropy analysis over hardware clock jitter
+    /// Blocks flows that lack real thermodynamic micro-variations
+    pub fn verify_jitter_entropy(&self, jitter_samples: &[u32]) -> bool {
+        let mut histogram = [u32; 256];
+        let total_samples = jitter_samples.len() as f64;
+        if total_samples == 0.0 {
+            return false;
+        }
+        // Constant-time histogram frequency construction
+        for &sample in jitter_samples.iter() {
+            let index = (sample & 0xFF) as usize;
+            histogram[index] += 1;
+        }
+        // Shannon Entropy Index calculation
+        let mut shannon_entropy: f64 = 0.0;
+        for &count in histogram.iter() {
+            if count > 0 {
+                let p = count as f64 / total_samples;
+                shannon_entropy -= p * log2(p);
+            }
+        }
+        // If entropy drops below the threshold, artificially generated synthetic telemetry is detected
+        if shannon_entropy < self.threshold_entropy {
+            self.attack_vector_triggered.store(true, Ordering::SeqCst);
+            false // Telemetry blocked
+        } else {
+            true // Human origin verified
+        }
+    }
+}
+// Auxiliary log2 approximation function for non-std environments
+fn log2(n: f64) -> f64 {
+    if n <= 0.0 { 0.0 } else { n.ln() / core::f64::consts::LN_2 }
+}
+```
+## CHAPTER IV: SECURITY MATRIX AND ATTACK VECTOR MITIGATION
+### Article 8: Mandatory Protocol Shielding
+The Cortex-Protocol ecosystem shall implement active algorithmic countermeasures across its three functional layers to permanently nullify the attack vectors described in the following control matrix:
+
+| Vector Identifier | Attack Denomination | Infiltration Mechanism | Mandatory Cryptographic & Logical Mitigation |
+| :--- | :--- | :--- | :--- |
+| **V-LOGOS-01** | **Semantic Collateral Inference** | The *Acolyte* simulates MVD compliance but extracts contextual metadata (typing latency, lexical patterns, cadence) to deduce psychopathological states or identities. | **Semantic Abstraction Transformer (LOGOS):** Local interception via a compact semantic model within the TEE that enforces automated paraphrasing and syntactic normalization of outward text before transmission. |
+| **V-WHITE-02** | **White Branch Snapshot Collusion** | Malicious actors compromise or forge governance keys to sign spurious *snapshots* of ClinicalThresholds, elevating tolerated ranges to exfiltrate data. | **Deterministic Algorithmic Veto:** The local node shall automatically reject any threshold variance implying a historical deviation greater than fifteen percent (\Delta > 15\%) without explicit cross-chain consensus. |
+| **V-UX-03** | **UX Consensus DoS** | Massive flooding of complex cryptographic requests or malformed manifests by hostile agents to exhaust compute and battery resources of the local node. | **Dynamic Proof of Work (PoW):** Enforcement of chained SHA-256 hash puzzles, whose difficulty escalates exponentially upon each consecutive MVD rejection, accelerated by native hardware instructions (**ARMv8-A**). |
+
+## CHAPTER V: OF CLINICAL GOVERNANCE (THE WHITE BRANCH)
+### Article 9: Supremacy of Neuroethical and Clinical Judgment
+The operational governance of the protocol rests exclusively with the White Branch, comprised of certified professionals in neuroscience, mental health, and bioethics. No commercial interest, engineering optimization, or state convenience may modify the numerical thresholds of physiological safety established in the executable structured code.
+### Article 10: Deterministic Policy Expiration via Hardware
+Configuration *snapshots* emitted by the White Branch shall be distributed digitally signed using quantum-resistant cryptographic schemes and shall possess a strict temporal validity of twelve (12) solar months. Upon expiration of said interval, the local hardware shall automatically and autonomously degrade all permissions granted to any *Acolyte*, entering a state of **Preventive Cryptographic Isolation** until a renewed policy is received and verified.
+## CHAPTER VI: OF TIMELESSNESS
+### Article 11: Absolute Implementation Independence
+The laws decreed in this Constitution possess axiomatic validity independent of development languages, prevailing transport protocols, or current computing hardware paradigms. Any emerging technology, including direct brain-computer interfaces, quantum distribution networks, or synthetic biological enclaves, must submit to the normalization, minimum viable firewalls, and flow bifurcation operators codified herein to be declared compliant with the Cortex-Protocol.
+The human biological constant is the sole origin and end of this architecture. Technique changes in brief cycles; our biology endures in deep time. We submit technique to our human condition, forever and irrevocably.
+*Drafted under the protection of the immutable initiative of the Cortex-Protocol.*
+*Encrypted for the preservation of the cognitive sovereignty of the human species.*
+*Licensed under GNU GPL v3 — Free, sovereign, and unalterable distribution for the defense of humanity.*
