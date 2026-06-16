@@ -140,3 +140,78 @@ Open an Issue tagged `[Governance-Node-Application]`. The application must inclu
 ---
 
 ## The Validation Loop
+
+The Validation Loop is the core cryptographic consensus mechanism used to propose, verify, and commit modifications to the protocol's clinical variables or to deploy a new Clinical Capability Module (CCM). This loop ensures that code execution remains strictly subordinate to empirical evidence.
+```
+[ 1. Proposal ] ----> [ 2. Peer Review ] ----> [ 3. Legal/Tech Audit ]
+|
+v
+[ 6. Runtime ] <---- [ 5. Multi-Sig ] <---- [ 4. Consensus Vote ]
+```
+### Step 1 — Initiation & Proof of Evidence
+
+Any Governance Node may open a pull request (PR) to modify a threshold or submit a new CCM. The proposal must contain:
+- The exact numerical changes within `ClinicalThresholds` or the compiled bytecode of the module.
+- The corresponding peer-reviewed bibliographic citations mapping the changes to human psychophysiological behavior.
+
+### Step 2 — Subcommittee A Evaluation (Scientific Validation)
+
+The proposal is routed to the scientific subcommittees of active Governance Nodes. They must independently verify that:
+- The clinical rationale is scientifically sound and free from systemic bias.
+- The adjustments match known homeostatic thresholds (e.g., polyvagal shifts or cognitive load markers).
+
+### Step 3 — Subcommittee B & Legal Validation (Technical & Compliance Audit)
+
+Simultaneously, the engineering and legal branches review the PR to guarantee:
+- **Zero-leakage compliance:** The modification introduces no pathways that could expose raw biometric data beyond the SAL boundary.
+- **Asynchronous integrity:** The change respects the non-blocking state buffer constraints.
+- **Regulatory alignment:** The Legal Validator signs off certifying compliance with regional neuro-rights standards and data protection frameworks (such as GDPR or Ley 1581/2012).
+
+### Step 4 — Consensus & Multi-Signature Ledger Commit
+
+Once all reviews pass, the proposal requires a multi-signature endorsement. A minimum of 66% of registered White Branch active GPG keys must sign the cryptographic payload. 
+
+### Step 5 — Runtime Deployment & Hardware Enforcement
+
+The newly signed configuration snapshot is distributed to the decentralized network registry. Local edge clients running the Cortex Protocol fetch this signed manifest. The local `cognitive_shield` verifies the chain of custody against the embedded White Branch root public keys before applying the new safety parameters to the active telemetry pipelines.
+
+---
+
+## Anti-Capture Mechanisms
+
+To prevent the protocol from being subtly co-opted by commercial entities, AI developers, or state actors, three structural anti-capture mechanisms are hardcoded into the governance layer:
+
+### 1. The Financial Separation Rule
+
+As defined under Subcommittee A’s mandates, any node that accepts capital, infrastructure, or indirect subsidies from closed-source AI conglomerates, hardware sensor vendors, or advertising platforms loses its voting keys instantly. Governance authority is derived exclusively from academic and clinical independence.
+
+### 2. Forking and Sovereign Devolution
+
+If the White Branch itself is captured or refuses to update safety parameters in the face of emerging clinical risk, the protocol grants the Technical Branch and individual users the un-alienable right to execute a **Sovereign Devolution**. Because the reference implementation is fully open-source and dual-licensed under open frameworks, users can instantly switch their hardware engines to follow an independent, uncaptured clinical root chain.
+### 3. Cryptographic Immutability of Local Overrides
+No governance body—including the White Branch—has the technical capability to push a remote override that relaxes safety limits on a user's local device without explicit, physical confirmation from the user through the ETHOS module. Governance flows downward to protect the user, never upward to control them.
+
+---
+
+## Governance Limitations & Hard Boundaries
+
+A governance framework that overstates its own power is inherently dangerous. The Cortex Protocol explicitly acknowledges what this framework **cannot** guarantee:
+
+| What Governance CAN Enforce | What Governance CANNOT Guarantee |
+| :--- | :--- |
+| **Statistical Integrity:** Ensuring that all thresholds in public releases match validated clinical literature. | **Hardware Malice:** Governance cannot stop a compromised, black-market physical sensor from spoofing raw data before it reaches the SAL handshake layer. |
+| **Architectural Isolation:** Ensuring the reference code maintains an absolute boundary between raw data and external AI tensors. | **Operating System Compromise:** If the host device kernel is fully compromised at the root level, application-layer isolation requires a physical TPM 2.0/Secure Enclave via KEROS to survive. |
+| **Node Transparency:** Auditing the capital structure and funding of institutional partners to eliminate hidden corporate incentives. | **User Self-Exploitation:** Governance cannot prevent a user from intentionally sidelining official profiles to run unvalidated, hazardous third-party modules at their own risk. |
+
+---
+
+## Open Governance Vectors for Milestone 1
+
+The following issues are currently open for review and require consensus before the final Milestone 1 mainnet transition:
+1.  **SLA Execution Latency:** Defining whether a 36-hour service-level agreement for emergency patch signatures from the White Branch is sustainable under distributed time-zone scenarios.
+2.  **Student Research Parity:** Implementing zero-cost token access rules for independent, non-funded academic student research groups seeking Governance Node status without corporate back-channeling.
+3.  **Local vs. Global Whitelisting:** Deciding if a local device can add custom sensor whitelists via physical key pairing without requiring global White Branch signature propagation.
+---
+*This framework is a living open standard. All modifications to this document require a formal Validation Loop execution and must be cryptographically anchored to the protocol's public key infrastructure.*
+**Document ID:** GOV-FRAME-1.2-PRIME | **Version:** 1.2 | **Last Updated:** 2026-06-16
+```
