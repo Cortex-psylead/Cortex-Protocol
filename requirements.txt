@@ -3,3 +3,8 @@
 numpy>=1.24,<3.0
 scipy>=1.11,<2.0
 cryptography>=41.0,<44.0
+
+# Milestone 1 — BrainFlow hardware sensor adapter (src/keros/brainflow_adapter.py).
+# Lazily imported, so the core SAL still imports without it; required only to
+# stream from a real or synthetic EEG board.
+brainflow>=5.10,<6.0
