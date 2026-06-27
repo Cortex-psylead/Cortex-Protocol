@@ -201,8 +201,7 @@ jobs:
           pip-audit \
             --requirement requirements.txt \
             --strict \
-            --output columns
-            --verbose
+            --output text
           # --strict: exits non-zero if ANY vulnerability found
           # This enforces that merging a PR with a known-vulnerable dep fails CI
 
