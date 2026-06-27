@@ -2,7 +2,7 @@
 # Install: pip install -r requirements.txt
 
 # Core (required)
-numpy>=1.24.0
+numpy>=1.26.4
 
 # Visualization (required for demo chart output)
 matplotlib>=3.7.0
