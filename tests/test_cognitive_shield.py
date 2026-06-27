@@ -225,7 +225,7 @@ class TestCDI:
         detector.establish_baseline([0.2, 0.22, 0.21, 0.19, 0.20, 0.21, 0.20])
         initial_soft = detector._soft_violations
         # Inject a massive outlier (far above baseline mean ~0.20)
-        detector.add_reading(5.0)
+        detector.add_reading(0.85)
         assert detector._soft_violations > initial_soft
 
 

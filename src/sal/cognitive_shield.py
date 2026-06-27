@@ -26,6 +26,7 @@ from collections import deque
 from enum import Enum
 
 import numpy as np
+import scipy.signal
 
 # ============================================================================
 # 0. CLINICAL CONFIGURATION (White Branch Mandate)
@@ -287,7 +288,7 @@ class AnonymousTensorFactory:
             (raw_data - clinical_min) / (clinical_max - clinical_min),
             0.0, 1.0
         )
-        envelope = np.abs(np.fft.hilbert(normalized))
+        envelope = np.abs(scipy.signal.hilbert(normalized))
         return np.array([
             np.mean(envelope),
             np.std(envelope),

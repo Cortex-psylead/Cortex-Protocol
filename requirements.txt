@@ -1,14 +1,21 @@
 # Cortex Protocol — Dependencies
 # Install: pip install -r requirements.txt
+# ALL versions pinned exactly (==) — Zero-Trust supply chain
+# See SECURITY.md §1 and sal-boundary-guard.yml INVARIANT 4
 
 # Core (required)
-numpy>=1.24.0
+numpy==1.26.4
 
 # Visualization (required for demo chart output)
-matplotlib>=3.7.0
+matplotlib==3.10.3
+
+# Signal processing — CDI threshold stability
+# INVARIANT 4: scipy minor versions affect CDI thresholds.
+# Version changes require Protocol Steward + White Branch review.
+scipy==1.15.3
+pytest==9.0.3
 
 # Optional: real EEG/biometric sensor support (install as needed)
 # mne>=1.4.0          # EEG processing — Muse, OpenBCI, BrainFlow
 # brainflow>=5.10.0   # Universal BCI hardware SDK (OpenBCI, Muse, Neurosity)
 # pyserial>=3.5       # Serial port access for wired sensors
-scipy>=1.11.0
