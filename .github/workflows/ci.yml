@@ -177,7 +177,7 @@ jobs:
           # the comment-exclusion bypass fixed in sal-boundary-guard.yml
           # and crypto-regression: those excluded lines containing
           # dangerous patterns; this excludes lines that are not packages.
-          unpinned=$(grep -vE '^\s*(#|$)' requirements.txt | grep -vE '==')
+          unpinned=$(grep -vE '^\s*(#|$)' requirements.txt | grep -vE '==' || true)
           if [ -n "$unpinned" ]; then
             echo "❌ UNPINNED DEPENDENCIES FOUND:"
             echo "$unpinned"
