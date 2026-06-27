@@ -68,7 +68,7 @@ jobs:
       # SHA pinned — github/codeql-action v3.27.1
       # Verify: https://github.com/github/codeql-action/releases/tag/v3.27.1
       - name: "Initialize CodeQL"
-        uses: github/codeql-action/init@4f3212b61783c3c68e8309a0f18a699764811cda  # v3.27.1
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
         with:
           languages: python
           # security-and-quality: covers OWASP Top 10 + code quality
