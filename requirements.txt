@@ -7,7 +7,7 @@
 numpy==1.26.4
 
 # Visualization (required for demo chart output)
-matplotlib==3.9.4
+matplotlib==3.10.3
 
 # Signal processing — CDI threshold stability
 # INVARIANT 4: scipy minor versions affect CDI thresholds.
