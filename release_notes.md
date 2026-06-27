@@ -1,20 +1,20 @@
-## 🚀 Cortex Protocol v0.5.2-alpha.1 — Hardware Abstraction Layer
+## 🚀 Cortex Protocol v0.5.2-beta.1 — Hardware Abstraction Layer
 
-Esta versión marca la transición oficial del protocolo de un entorno de simulación pura (`NumPy` sine-waves) a la ingesta de telemetría bio-sensorial en tiempo real mediante hardware real o sintético.
+This version marks the official transition of the protocol from a pure simulation environment (`NumPy` sine-waves) to real-time bio-sensory telemetry ingestion using real or synthetic hardware.
 
-### 🧠 Cambios Principales
-* **Capa de Abstracción de Sensores:** Implementación de la clase base abstracta `BiometricSensorAdapter` para estandarizar futuras integraciones de hardware (EEG, ECG, PPG).
-* **Adaptador BrainFlow Integrado:** Conexión end-to-end con la arquitectura de BrainFlow, permitiendo el procesamiento de tramas biométricas nativas de dispositivos como OpenBCI Cyton, Muse 2 y Neurosity Crown.
-* **Procesamiento en Fase A:** Extracción matemática automatizada de características clínicas en tiempo real utilizando la envolvente de Hilbert (`scipy.signal.hilbert`), mapeando directamente los vectores al enrutador de telemetría (`TelemetryRouter`) bajo los umbrales de la Teoría Polivagal.
+### 🧠 Main Changes
+* **Sensor Abstraction Layer:** Implementation of the `BiometricSensorAdapter` abstract base class to standardize future hardware integrations (EEG, ECG, PPG).
+* **Integrated BrainFlow Adapter:** End-to-end connection with the BrainFlow architecture, enabling the processing of native biometric frames from devices such as OpenBCI Cyton, Muse 2, and Neurosity Crown.
+* **Phase A Processing:** Automated mathematical extraction of real-time clinical features using the Hilbert envelope (`scipy.signal.hilbert`), mapping vectors directly to the `TelemetryRouter` under Polyvagal Theory thresholds.
 
-### 🧪 Pruebas y Estabilidad
-* Cobertura de pruebas unitarias completada con éxito utilizando la tarjeta virtual `BoardIds.SYNTHETIC_BOARD` de BrainFlow para garantizar la viabilidad en entornos de Integración Continua (CI).
-* Incremento monotónico estricto de secuencias de tramas (`frame_seq`) para mitigar ataques de replicación en el puente de datos.
+### 🧪 Testing & Stability
+* Unit test coverage successfully completed using BrainFlow's virtual `BoardIds.SYNTHETIC_BOARD` to guarantee viability in Continuous Integration (CI) environments.
+* Strict monotonic increment of frame sequences (`frame_seq`) to mitigate replay attacks on the data bridge.
 
-### 👥 Contribuyentes en este lanzamiento
-* @JhonAndry (Architecture & Review)
+### 👥 Contributors in this Release
+* @Cortex-psylead (Architecture & Review)
 * @mayoka0 (Core Implementation & Tests)
 * **Claude Opus 4.8** (AI Co-Author — Pair Programming Support)
 
 ---
-*Nota: Este es un pre-lanzamiento de desarrollo correspondiente al Milestone 1 (Clinical Validation). No está destinado aún para entornos de producción clínica de mainnet.*
+*Note: This is a development pre-release corresponding to Milestone 1 (Clinical Validation). It is not yet intended for mainnet clinical production environments.*
