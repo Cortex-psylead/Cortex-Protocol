@@ -1,0 +1,81 @@
+# ============================================================
+#  Cortex Protocol — CODEOWNERS
+#  Critical file protection: mandatory Protocol Steward review
+# ============================================================
+#
+#  CODEOWNERS enforces that certain files cannot be merged
+#  via Pull Request without explicit approval from the designated
+#  owner — even if all CI checks pass.
+#
+#  HOW IT WORKS:
+#  When a PR modifies a file matching a pattern below, GitHub
+#  automatically adds the listed owner as a required reviewer.
+#  The PR cannot be merged until that reviewer approves.
+#
+#  SETUP REQUIRED (one-time):
+#  In repo Settings → Branches → main branch protection:
+#  ✅ Require a pull request before merging
+#  ✅ Require approvals: 1
+#  ✅ Require review from Code Owners
+#  ✅ Dismiss stale pull request approvals when new commits are pushed
+#  ✅ Require status checks to pass before merging
+#     → ci / test-suite (ubuntu-24.04, 3.10)
+#     → ci / test-suite (ubuntu-24.04, 3.11)
+#     → ci / test-suite (ubuntu-24.04, 3.12)
+#     → ci / bandit-sast
+#     → ci / dependency-audit
+#     → ci / crypto-regression
+#     → sal-boundary-guard / SAL Boundary — Invariant Check
+#  ✅ Require branches to be up to date before merging
+#  ✅ Do not allow bypassing the above settings
+#
+#  OWNER NOTATION:
+#  Replace @cortex-psylead with the actual GitHub username(s)
+#  of the Protocol Steward account(s).
+
+# ── Default owner for everything not explicitly listed ──────────
+*                               @cortex-psylead
+
+# ── SAL — Core sovereignty layer ────────────────────────────────
+# Any change to the SAL requires Protocol Steward review.
+# This is the most critical boundary in the protocol.
+/src/sal/                       @cortex-psylead
+/src/ethos/                     @cortex-psylead
+/src/keros/                     @cortex-psylead
+/src/limes/                     @cortex-psylead
+/src/governance/                @cortex-psylead
+
+# ── Layer 1 — Bare metal firmware specification ──────────────────
+# Any change to C/Rust/ASM firmware requires Protocol Steward
+# AND will require White Branch review before merge.
+/src/layer1/                    @cortex-psylead
+
+# ── Layer 2 — ZKP circuits ──────────────────────────────────────
+/src/layer2/                    @cortex-psylead
+
+# ── CI/CD — Workflow files ───────────────────────────────────────
+# Changes to CI could bypass security checks.
+# Only the Protocol Steward can modify them.
+/.github/                       @cortex-psylead
+
+# ── Governance and legal documents ──────────────────────────────
+# These documents are the Digital Constitution of the project.
+# No external contributor may modify them unilaterally.
+/docs/governance/               @cortex-psylead
+/docs/legal/                    @cortex-psylead
+SECURITY.md                     @cortex-psylead
+CONTRIBUTING.md                 @cortex-psylead
+
+# ── Dependency manifest ──────────────────────────────────────────
+# requirements.txt changes affect the entire cryptographic stack.
+requirements.txt                @cortex-psylead
+
+# ── Test suite ──────────────────────────────────────────────────
+# Tests define what "correct behavior" means for the protocol.
+/tests/                         @cortex-psylead
+
+# ── Clinical documents ──────────────────────────────────────────
+# Require White Branch co-review (add White Branch GitHub handles
+# when Governance Nodes are constituted in Milestone 1)
+/docs/clinical/                 @cortex-psylead
+# Future: /docs/clinical/     @cortex-psylead @white-branch-node-1

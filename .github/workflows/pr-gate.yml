@@ -1,0 +1,184 @@
+# ============================================================
+#  Cortex Protocol — External PR Gate
+#  First-pass validation before Protocol Steward review
+# ============================================================
+#
+#  This workflow runs ONLY on pull_request events from forks
+#  (external contributors). It does NOT run on internal pushes.
+#
+#  PURPOSE:
+#  The PR Gate is the automated layer of the Validation Loop
+#  defined in CONTRIBUTING.md. It verifies structural and
+#  security preconditions before a human review begins.
+#
+#  CHECKS:
+#  1. PR targets a valid branch (not main directly from unknown)
+#  2. Changed files are within allowed paths for the PR type
+#  3. No binary files committed (only source + docs)
+#  4. No secrets or credentials accidentally committed (gitleaks)
+#  5. PR has at least one required label ([Technical-Track],
+#     [Clinical-Track], or [Standards-Track])
+#
+#  SECURITY:
+#  - Uses pull_request (NOT pull_request_target)
+#  - GITHUB_TOKEN has NO write permissions
+#  - fork PRs run with ZERO access to secrets
+#  - No self-hosted runners
+
+name: "External PR Gate — Pre-Review Validation"
+
+on:
+  pull_request:
+    branches: ["main", "develop"]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+# ── Global: read-only ────────────────────────────────────────────
+permissions:
+  contents: none
+  actions: none
+  checks: none
+  deployments: none
+  id-token: none
+  issues: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  pr-gate:
+    name: "PR Gate — Structural Validation"
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      pull-requests: read   # read labels only, no write
+
+    steps:
+      - name: "Checkout PR branch (read-only)"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+          # Fetch only the PR branch — no history, no other branches
+          fetch-depth: 1
+
+      # ── Check 1: No binary files ──────────────────────────────
+      - name: "Check 1 — No binary files committed"
+        run: |
+          echo "=== Checking for binary files ==="
+          ALLOWED_EXTENSIONS="py|md|txt|yml|yaml|json|toml|cfg|ini|rst|c|h|rs|s|ld|circom"
+          FAILED=0
+
+          # Find all files changed relative to main (base branch)
+          git fetch origin main --depth=1 2>/dev/null || true
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || \
+                          git diff --name-only HEAD~1 HEAD 2>/dev/null || \
+                          find . -name "*.py" -o -name "*.md" | head -50)
+
+          while IFS= read -r FILE; do
+            [ -z "$FILE" ] && continue
+            [ ! -f "$FILE" ] && continue
+
+            # Check if file extension is in allowed list
+            EXT="${FILE##*.}"
+            if ! echo "$EXT" | grep -qE "^($ALLOWED_EXTENSIONS)$"; then
+              # Check if it's actually a text file despite unknown extension
+              if file "$FILE" | grep -q "binary"; then
+                echo "❌ Binary file not allowed: $FILE"
+                FAILED=1
+              fi
+            fi
+          done <<< "$CHANGED_FILES"
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "Binary files are not accepted in Cortex Protocol contributions."
+            echo "If you need to add documentation images, open an Issue first."
+            exit 1
+          fi
+          echo "✅ No binary files detected."
+
+      # ── Check 2: No secrets accidentally committed ────────────
+      - name: "Check 2 — Secret scanning (gitleaks)"
+        run: |
+          echo "=== Running gitleaks secret scan ==="
+          # Install gitleaks (pinned version)
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz \
+            | tar xz gitleaks
+          chmod +x gitleaks
+          ./gitleaks detect \
+            --source . \
+            --no-git \
+            --exit-code 1 \
+            --redact \
+            2>&1 || {
+              echo "❌ Potential secrets detected in the contribution."
+              echo "See SECURITY.md — Vulnerability Reporting."
+              echo "If this is a false positive, open an Issue for review."
+              exit 1
+            }
+          echo "✅ No secrets detected."
+
+      # ── Check 3: No file outside allowed paths ────────────────
+      - name: "Check 3 — Changed files within allowed contribution paths"
+        run: |
+          echo "=== Checking contribution scope ==="
+          # External contributors may only modify:
+          ALLOWED_PATHS="^src/|^tests/|^docs/|^requirements\.txt$|^CONTRIBUTING\.md$|^README\.md$"
+          FAILED=0
+
+          git fetch origin main --depth=1 2>/dev/null || true
+          CHANGED=$(git diff --name-only origin/main...HEAD 2>/dev/null || true)
+
+          while IFS= read -r FILE; do
+            [ -z "$FILE" ] && continue
+            if ! echo "$FILE" | grep -qE "$ALLOWED_PATHS"; then
+              echo "❌ File outside allowed contribution paths: $FILE"
+              echo "   Protected paths (require Protocol Steward): .github/, GOVERNANCE*, SECURITY*"
+              FAILED=1
+            fi
+          done <<< "$CHANGED"
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "Contributions to governance, security, and CI files"
+            echo "require direct coordination with the Protocol Steward."
+            echo "Open an Issue tagged [Proposal] first."
+            exit 1
+          fi
+          echo "✅ All changed files are within allowed contribution paths."
+
+      # ── Check 4: Verify PR description is not empty ──────────
+      - name: "Check 4 — PR has description (clinical rationale required)"
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          echo "=== Checking PR description ==="
+          # CONTRIBUTING.md requires documenting the clinical reason
+          # as much as the technical implementation
+          if [ -z "$PR_BODY" ] || [ ${#PR_BODY} -lt 100 ]; then
+            echo "❌ PR description is empty or too short (< 100 characters)."
+            echo ""
+            echo "CONTRIBUTING.md requires:"
+            echo "  - Clinical rationale for the change"
+            echo "  - Technical description of the implementation"
+            echo "  - Reference to the Issue this resolves"
+            echo ""
+            echo "Please update the PR description and re-submit."
+            exit 1
+          fi
+          echo "✅ PR description meets minimum length requirement."
+
+      - name: "Gate Summary"
+        if: success()
+        run: |
+          echo "================================================"
+          echo "  PR GATE PASSED — Ready for Protocol Steward review"
+          echo "================================================"
+          echo ""
+          echo "Next steps per CONTRIBUTING.md Validation Loop:"
+          echo "  1. White Branch clinical review (if applicable)"
+          echo "  2. Protocol Steward technical review"
+          echo "  3. Merge decision"

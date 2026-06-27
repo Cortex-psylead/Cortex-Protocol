@@ -1,0 +1,96 @@
+# ============================================================
+#  Cortex Protocol — Dependabot Configuration
+#  Automated dependency updates: Python packages + GH Actions
+# ============================================================
+#
+#  SECURITY RATIONALE:
+#  Dependabot watches two ecosystems:
+#
+#  1. pip — Python dependencies in requirements.txt
+#     Monitors CVEs in numpy, scipy, cryptography, and any
+#     other pinned packages. Opens PRs to update vulnerable
+#     versions. Critical for Cortex Protocol because the
+#     `cryptography` library is part of the cryptographic
+#     governance chain (SECURITY.md §2).
+#
+#  2. github-actions — The CI workflow actions themselves
+#     Monitors the 3 actions used across all workflows
+#     (actions/checkout, actions/setup-python, github/codeql-action)
+#     and opens PRs to update their pinned SHA when new
+#     versions are released.
+#     This ensures SHA pinning does not become stale security theater.
+#
+#  CONFIGURATION DECISIONS:
+#  - Weekly schedule (not daily): reduces noise while maintaining
+#    timely security coverage for a research-stage project
+#  - open-pull-requests-limit: 5 — prevents PR flood on a small
+#    contributor team
+#  - Groups: separates security updates from non-security updates
+#    so security PRs can be merged without waiting for feature bumps
+#  - Labels: all Dependabot PRs get [Technical-Track] to route
+#    them through the correct CI and review flow
+#
+#  NOTE: Dependabot PRs go through all CI workflows (ci.yml,
+#  sal-boundary-guard.yml) before any merge. The Protocol
+#  Steward still reviews and manually merges all updates.
+
+version: 2
+
+updates:
+  # ── Python dependencies (requirements.txt) ──────────────────
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/Bogota"   # Colombia timezone (Neuro-Synapse Core base)
+    open-pull-requests-limit: 5
+    labels:
+      - "Technical-Track"
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "deps(pip)"
+      include: "scope"
+    # Group security updates separately from non-security
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns: ["*"]
+        update-types: ["patch", "minor"]
+      non-security-updates:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["patch"]
+    # Ignore major version bumps on critical libs
+    # Major version changes in cryptography or numpy require
+    # White Branch review, not automated merging
+    ignore:
+      - dependency-name: "numpy"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "scipy"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+        # scipy minor versions affect CDI thresholds — require Protocol Steward review
+        # See INVARIANT 4 in sal-boundary-guard.yml
+      - dependency-name: "cryptography"
+        update-types: ["version-update:semver-major"]
+
+  # ── GitHub Actions (workflow action SHAs) ───────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/Bogota"
+    open-pull-requests-limit: 3
+    labels:
+      - "Technical-Track"
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci(actions)"
+      include: "scope"
+    # Dependabot updates the SHA pins automatically when new
+    # versions are released — maintains security without manual tracking

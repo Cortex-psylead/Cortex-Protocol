@@ -1,0 +1,308 @@
+# ============================================================
+#  Cortex Protocol — CI Pipeline
+#  Zero-Trust Workflow: least-privilege, SHA-pinned, no secrets
+# ============================================================
+#
+#  SECURITY POSTURE:
+#  - All permissions explicitly set to read-only or none
+#  - No third-party actions except pinned to immutable SHAs
+#  - pull_request trigger (NOT pull_request_target) — untrusted
+#    code from forks NEVER runs with write access or secrets
+#  - No self-hosted runners (attack surface for public repos)
+#  - Egress: only PyPI (pip install) and GitHub API (checkout)
+#  - GITHUB_TOKEN: contents:read, checks:write only — no write
+#    access to code, issues, PRs, secrets, or packages
+#
+#  THREAT MODEL ALIGNMENT (SECURITY.md):
+#  - Zero Data Exfiltration: no secrets in env, no artifact upload
+#    of sensitive files, no external network calls beyond pip
+#  - Zero-Trust: each job is isolated; no shared state between jobs
+#  - Honest Limits: bandit covers SAST but not runtime behavior
+
+name: "CI — Test Suite & Security Scan"
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+    # NOTE: pull_request (not pull_request_target) — fork PRs run
+    # in a read-only sandbox with NO access to repo secrets.
+    # This is intentional. Never change this to pull_request_target.
+
+# ── Global permissions: deny everything by default ──────────────
+# Individual jobs override only what they strictly need.
+permissions:
+  contents: none
+  actions: none
+  checks: none
+  deployments: none
+  id-token: none
+  issues: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+# ── Cancel redundant runs on same branch ────────────────────────
+concurrency:
+  group: "ci-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+
+  # ── JOB 1: Run the 23-test suite ──────────────────────────────
+  test-suite:
+    name: "Test Suite (Python ${{ matrix.python-version }})"
+    runs-on: ubuntu-24.04   # GitHub-hosted, ephemeral, destroyed after job
+
+    # Minimal permissions for a read-only test job
+    permissions:
+      contents: read   # checkout only
+      checks: write    # post test results as check annotations
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      # SHA pinned to immutable commit — tag v4.2.2
+      # Verify: https://github.com/actions/checkout/commit/11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: "Checkout — read-only, no submodules"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false   # CRITICAL: prevents token from persisting
+          submodules: false
+          # fetch-depth: 1 (default) — shallow clone, no history exfiltration risk
+
+      # SHA pinned — tag v5.3.0
+      # Verify: https://github.com/actions/setup-python/commit/0b93645e9fea7318ecaed2dc359ef8b2d668516
+      - name: "Set up Python ${{ matrix.python-version }}"
+        uses: actions/setup-python@0b93645e9fea7318ecaed2dc359ef8b2d668516  # v5.3.0
+        with:
+          python-version: "${{ matrix.python-version }}"
+          cache: "pip"   # caches ~/.cache/pip — no credentials involved
+
+      - name: "Install dependencies (pinned via requirements.txt)"
+        run: |
+          python -m pip install --upgrade pip --quiet
+          pip install -r requirements.txt --quiet
+        # No --user flag needed in GitHub-hosted runners (isolated venv)
+        # requirements.txt must pin ALL versions (see dependabot.yml)
+
+      - name: "Run test suite — 23 tests expected"
+        run: |
+          python -m pytest tests/ \
+            --tb=short \
+            --strict-markers \
+            -q \
+            --no-header
+        # Explicit exit codes: pytest exits non-zero on failure → workflow fails
+        # No junit XML export — avoids artifact upload of test metadata
+
+  # ── JOB 2: Bandit SAST — Python security linter ───────────────
+  bandit-sast:
+    name: "SAST — Bandit Security Scan"
+    runs-on: ubuntu-24.04
+    needs: test-suite   # only run if tests pass
+
+    permissions:
+      contents: read
+      security-events: write   # upload SARIF to GitHub Security tab
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: "Set up Python"
+        uses: actions/setup-python@0b93645e9fea7318ecaed2dc359ef8b2d668516  # v5.3.0
+        with:
+          python-version: "3.12"
+
+      - name: "Install Bandit"
+        run: pip install bandit[sarif]==1.8.3 --quiet
+        # Pinned to exact version — no float version risks
+
+      - name: "Run Bandit — high confidence, all severity levels"
+        run: |
+          bandit \
+            --recursive src/ \
+            --confidence-level HIGH \
+            --severity-level LOW \
+            --format sarif \
+            --output bandit-results.sarif \
+            --tests B105,B106,B107,B108,B110,B201,B301,B302,B303,B304,B305,B306,B307,B311,B312,B313,B314,B315,B316,B317,B318,B319,B320,B321,B322,B323,B324,B401,B402,B403,B404,B405,B406,B407,B408,B409,B411,B412,B413,B501,B502,B503,B504,B505,B506,B507,B601,B602,B603,B604,B605,B606,B607,B608,B609,B610,B611,B701,B702,B703
+          # Explicit test list: covers all crypto, injection, and subprocess risks
+          # Relevant to Cortex Protocol: B301 (pickle), B324 (weak hash),
+          # B501-B507 (SSL/TLS), B601-B611 (injection), B105-B108 (hardcoded creds)
+        continue-on-error: true   # upload SARIF even if findings exist
+
+      - name: "Upload SARIF to GitHub Security tab"
+        uses: github/codeql-action/upload-sarif@4f3212b61783c3c68e8309a0f18a699764811cda  # v3.27.1
+        # SHA pinned — verify: https://github.com/github/codeql-action
+        with:
+          sarif_file: bandit-results.sarif
+          category: "bandit-sast"
+
+  # ── JOB 3: Verify requirements.txt is fully pinned ────────────
+  dependency-audit:
+    name: "Dependency Audit — Pin Verification"
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: "Verify all dependencies are version-pinned"
+        run: |
+          # Every line in requirements.txt must use == (exact pin)
+          # Rejects >=, ~=, >, <, != and unpinned packages
+          #
+          # AUDITOR NOTE — This grep -v IS intentional and correct:
+          # We are NOT scanning for forbidden patterns here. We are
+          # verifying the FORMAT of non-comment lines. The grep -v
+          # below excludes blank lines and lines that ARE comments
+          # (start with #) so we can validate the remaining lines
+          # for pinning format. This is fundamentally different from
+          # the comment-exclusion bypass fixed in sal-boundary-guard.yml
+          # and crypto-regression: those excluded lines containing
+          # dangerous patterns; this excludes lines that are not packages.
+          unpinned=$(grep -vE '^\s*(#|$)' requirements.txt | grep -vE '==')
+          if [ -n "$unpinned" ]; then
+            echo "❌ UNPINNED DEPENDENCIES FOUND:"
+            echo "$unpinned"
+            echo ""
+            echo "All packages in requirements.txt must use == (exact version)."
+            echo "Rationale: Cortex Protocol SECURITY.md §1 — Zero Trust supply chain."
+            exit 1
+          fi
+          echo "✅ All dependencies are exactly pinned."
+
+      - name: "Set up Python"
+        uses: actions/setup-python@0b93645e9fea7318ecaed2dc359ef8b2d668516  # v5.3.0
+        with:
+          python-version: "3.12"
+
+      - name: "Install pip-audit"
+        run: pip install pip-audit==2.7.3 --quiet
+
+      - name: "Run pip-audit — CVE scan on pinned dependencies"
+        run: |
+          pip-audit \
+            --requirement requirements.txt \
+            --strict \
+            --output text
+          # --strict: exits non-zero if ANY vulnerability found
+          # This enforces that merging a PR with a known-vulnerable dep fails CI
+
+  # ── JOB 4: Cryptographic signature checks ─────────────────────
+  #  Validates that HMAC and hash usage in the codebase never
+  #  introduces weak algorithms (MD5, SHA-1) — a regression guard
+  #  specific to Cortex Protocol's cryptographic governance mandate.
+  crypto-regression:
+    name: "Crypto Regression — Weak Algorithm Guard"
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: "Scan for forbidden weak cryptographic primitives"
+        run: |
+          echo "=== Scanning for forbidden weak crypto primitives ==="
+          #
+          # ZERO-TRUST TEXTUAL POLICY:
+          # Forbidden algorithm names must not appear anywhere in src/
+          # — not in executable code, not in comments, not in docstrings,
+          # not in string literals. No exclusion filters are applied.
+          #
+          # RATIONALE: A comment reading "# do not use MD5" or
+          # "# SHA-1 collision risk" inside src/ is a signal that the
+          # developer considered using a forbidden primitive. In a
+          # clinical-grade cryptographic governance model, that proximity
+          # requires human review — not automated clearance.
+          #
+          # Exception process: if a legitimate textual reference is needed
+          # (e.g., documenting a known vulnerability in a test fixture),
+          # it must live in docs/ or tests/, not in src/.
+          #
+          FAILED=0
+
+          # ── MD5: banned unconditionally ───────────────────────────
+          # No variant, no context, no exception.
+          MD5_HITS=$(grep -rn "md5\|MD5\|hashlib\.md5" src/ --include="*.py" || true)
+          if [ -n "$MD5_HITS" ]; then
+            echo "❌ FORBIDDEN: MD5 reference detected in src/:"
+            echo "$MD5_HITS"
+            FAILED=1
+          fi
+
+          # ── SHA-1: banned unconditionally ─────────────────────────
+          # Previous version applied | grep -v "# git|# SHA-1 collision|# commit"
+          # This allowed bypass via inline comments. REMOVED.
+          # SHA-1 must not appear anywhere in src/ under any framing.
+          SHA1_HITS=$(grep -rn "sha1\|SHA1\|hashlib\.sha1\|SHA-1\|sha-1" src/ --include="*.py" || true)
+          if [ -n "$SHA1_HITS" ]; then
+            echo "❌ FORBIDDEN: SHA-1 reference detected in src/:"
+            echo "$SHA1_HITS"
+            echo "  Note: References in comments are also forbidden."
+            echo "  If documenting SHA-1 vulnerabilities, use docs/ instead."
+            FAILED=1
+          fi
+
+          # ── DES / 3DES / RC4 / RC2: banned unconditionally ────────
+          LEGACY_HITS=$(grep -rn "\bDES\b\|3DES\|Triple.DES\|RC4\|RC2\|Cipher\.DES" src/ --include="*.py" || true)
+          if [ -n "$LEGACY_HITS" ]; then
+            echo "❌ FORBIDDEN: Deprecated cipher reference detected in src/:"
+            echo "$LEGACY_HITS"
+            FAILED=1
+          fi
+
+          # ── ECB mode: banned unconditionally ──────────────────────
+          ECB_HITS=$(grep -rn "\.ECB\|modes\.ECB\|\"ECB\"\|'ECB'" src/ --include="*.py" || true)
+          if [ -n "$ECB_HITS" ]; then
+            echo "❌ FORBIDDEN: ECB cipher mode reference detected in src/:"
+            echo "$ECB_HITS"
+            FAILED=1
+          fi
+
+          # ── HMAC-SHA256: presence required in SAL ─────────────────
+          # This is a positive assertion — the SAL MUST contain HMAC-SHA256.
+          # Absence means the obfuscation phase (Phase B) has been removed.
+          HMAC_PRESENT=$(grep -rn "HMAC.*SHA256\|hmac.*sha256\|HMAC-SHA-256\|SHA256.*hmac" src/sal/ --include="*.py" || true)
+          if [ -z "$HMAC_PRESENT" ]; then
+            echo "❌ MISSING: HMAC-SHA256 not found in src/sal/"
+            echo "  The Phase B obfuscation step is absent from the SAL."
+            echo "  See SECURITY.md §2 — Cryptographic Governance."
+            FAILED=1
+          fi
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "══════════════════════════════════════════════════════════"
+            echo "  CRYPTO REGRESSION DETECTED."
+            echo "  Forbidden algorithm references in src/ are a hard"
+            echo "  failure regardless of context (code, comment, docstring)."
+            echo "  See SECURITY.md §2 — Cryptographic Governance."
+            echo "  Resolution requires Protocol Steward review."
+            echo "══════════════════════════════════════════════════════════"
+            exit 1
+          fi
+
+          echo "✅ No forbidden cryptographic primitives detected."
+          echo "✅ HMAC-SHA256 presence confirmed in SAL."

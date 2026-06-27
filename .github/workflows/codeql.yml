@@ -1,0 +1,89 @@
+# ============================================================
+#  Cortex Protocol — CodeQL Semantic Security Analysis
+#  Static analysis: dataflow, taint tracking, crypto misuse
+# ============================================================
+#
+#  SECURITY POSTURE:
+#  - Runs on: push to main, PRs to main, weekly schedule
+#  - Schedule ensures new CodeQL rules catch regressions
+#    even when the codebase is not actively changing
+#  - security-events: write required to post SARIF results
+#  - All other permissions: none
+#  - No third-party actions beyond github/codeql-action (GitHub-owned)
+#
+#  WHY CodeQL MATTERS FOR CORTEX PROTOCOL:
+#  CodeQL performs taint analysis — it traces data flow from
+#  sources (sensor input) to sinks (network calls, file writes,
+#  subprocess execution). This is the CI equivalent of the
+#  SAL boundary check: ensuring no path exists from raw biometric
+#  data to an unauthorized output. Pattern tools (Bandit) miss
+#  multi-hop flows; CodeQL does not.
+
+name: "CodeQL — Semantic Security Analysis"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    # Weekly scan: Sunday 02:00 UTC
+    # Catches new CodeQL rules even without code changes
+    - cron: "0 2 * * 0"
+
+# ── Global permissions: deny everything ─────────────────────────
+permissions:
+  contents: none
+  actions: none
+  checks: none
+  deployments: none
+  id-token: none
+  issues: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  codeql-analyze:
+    name: "CodeQL Analysis — Python"
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read          # checkout
+      security-events: write  # upload SARIF to Security tab
+      actions: read           # required by CodeQL for workflow context
+
+    steps:
+      # SHA pinned — actions/checkout v4.2.2
+      - name: "Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+          # fetch-depth: 0 required by CodeQL for full history analysis
+          fetch-depth: 0
+
+      # SHA pinned — github/codeql-action v3.27.1
+      # Verify: https://github.com/github/codeql-action/releases/tag/v3.27.1
+      - name: "Initialize CodeQL"
+        uses: github/codeql-action/init@4f3212b61783c3c68e8309a0f18a699764811cda  # v3.27.1
+        with:
+          languages: python
+          # security-and-quality: covers OWASP Top 10 + code quality
+          # Includes: injection, crypto misuse, insecure deserialization,
+          # path traversal, regex injection, clear-text logging of sensitive data
+          queries: security-and-quality
+          # No config-file: using inline config to minimize external dependencies
+
+      # CodeQL auto-builds Python (no compilation needed)
+      - name: "Autobuild"
+        uses: github/codeql-action/autobuild@4f3212b61783c3c68e8309a0f18a699764811cda  # v3.27.1
+
+      - name: "Perform CodeQL Analysis"
+        uses: github/codeql-action/analyze@4f3212b61783c3c68e8309a0f18a699764811cda  # v3.27.1
+        with:
+          category: "codeql-python"
+          # upload: true (default) — posts results to GitHub Security tab
+          # Results are private to repo maintainers; not public

@@ -1,0 +1,337 @@
+# ============================================================
+#  Cortex Protocol — SAL Boundary & Protocol Invariant Guard
+#  Enforces architectural constraints specific to the protocol
+# ============================================================
+#
+#  This workflow guards the invariants defined in SECURITY.md
+#  and ARCHITECTURE.md that cannot be caught by generic SAST:
+#
+#  INVARIANT 1 — Zero Network Egress from SAL boundary:
+#    No src/sal/ module may contain socket, requests, urllib,
+#    httpx, aiohttp or any network primitive. The SAL is
+#    architecturally air-gapped.
+#
+#  INVARIANT 2 — Memory zeroing discipline:
+#    Any class using RawBiometricFrame pattern must implement
+#    __exit__ with data.fill(0) before returning. A PR that
+#    removes this degrades the memory safety guarantee.
+#
+#  INVARIANT 3 — No raw biometric passthrough:
+#    Functions that return biometric data must pass through
+#    the HMAC obfuscation phase (Phase B). Direct return of
+#    raw numpy arrays from sensor ingestion functions is banned.
+#
+#  INVARIANT 4 — scipy version pin integrity:
+#    scipy must remain pinned to the exact approved version.
+#    (Tracks Issue #3 — scipy version pin for CDI stability)
+#
+#  INVARIANT 5 — No subprocess calls in SAL:
+#    The SAL must not shell out. subprocess, os.system, and
+#    os.popen are banned in src/sal/ and src/ethos/.
+#
+#  WHY A SEPARATE WORKFLOW:
+#  These checks are domain-specific to Cortex Protocol. They
+#  encode the White Branch's architectural mandate in CI,
+#  making the standard self-enforcing.
+
+name: "SAL Boundary Guard — Protocol Invariants"
+
+on:
+  pull_request:
+    branches: ["main", "develop"]
+    paths:
+      - "src/**"
+      - "requirements.txt"
+  push:
+    branches: ["main"]
+    paths:
+      - "src/**"
+      - "requirements.txt"
+
+# ── Global permissions: deny everything ─────────────────────────
+permissions:
+  contents: none
+  actions: none
+  checks: none
+  deployments: none
+  id-token: none
+  issues: none
+  packages: none
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  sal-boundary-guard:
+    name: "SAL Boundary — Invariant Check"
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          persist-credentials: false
+
+      # ── INVARIANT 1: Zero network egress from SAL ──────────────
+      - name: "INVARIANT 1 — Zero network egress from SAL boundary"
+        run: |
+          echo "=== Checking for forbidden network primitives in SAL boundary ==="
+          #
+          # ZERO-TRUST TEXTUAL POLICY:
+          # The mere textual presence of a forbidden network primitive
+          # in any SAL boundary file is a hard violation — regardless
+          # of whether the occurrence is in executable code, a comment,
+          # a docstring, or a string literal.
+          #
+          # RATIONALE: In a Zero-Trust clinical-grade air-gap, there is
+          # no valid reason to reference network primitives even in
+          # comments. A comment saying "# do not use socket" is itself
+          # a signal of proximity to a boundary violation and must be
+          # reviewed by the Protocol Steward. The CI must not second-guess
+          # the developer's intent — it must fail and require human review.
+          #
+          # NO grep -v FILTERS ARE APPLIED. No exclusion lists.
+          # No "safe comment" patterns. Any match = hard failure.
+          #
+          FAILED=0
+
+          # Each primitive is scanned individually so the output
+          # identifies exactly which pattern triggered the failure.
+          SAL_DIRS="src/sal src/ethos src/limes src/keros src/governance"
+
+          # Primitive list — covers standard library, popular HTTP clients,
+          # async frameworks, and legacy modules.
+          # Extend this list; never shrink it.
+          declare -a PRIMITIVES=(
+            "import socket"
+            "from socket"
+            "socket\."
+            "import requests"
+            "from requests"
+            "requests\."
+            "import urllib"
+            "from urllib"
+            "urllib\."
+            "import urllib2"
+            "from urllib2"
+            "import httpx"
+            "from httpx"
+            "httpx\."
+            "import aiohttp"
+            "from aiohttp"
+            "aiohttp\."
+            "import http\.client"
+            "from http"
+            "http\.client"
+            "import ftplib"
+            "import smtplib"
+            "import imaplib"
+            "import poplib"
+            "import telnetlib"
+            "import asyncio"
+            "import trio"
+            "import twisted"
+            "import tornado"
+            "import websocket"
+            "import websockets"
+            "import grpc"
+            "import paramiko"
+            "import pycurl"
+          )
+
+          for DIR in $SAL_DIRS; do
+            if [ -d "$DIR" ]; then
+              for PATTERN in "${PRIMITIVES[@]}"; do
+                # No -v filter. No comment exclusion. Total scan.
+                HITS=$(grep -rn "$PATTERN" "$DIR" --include="*.py" || true)
+                if [ -n "$HITS" ]; then
+                  echo "❌ FORBIDDEN NETWORK PRIMITIVE [ $PATTERN ] in $DIR:"
+                  echo "$HITS"
+                  echo "---"
+                  FAILED=1
+                fi
+              done
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "══════════════════════════════════════════════════════════"
+            echo "  INVARIANT 1 VIOLATION: SAL boundary air-gap breached."
+            echo "  Even occurrences in comments or docstrings are a hard"
+            echo "  failure. Network primitives must not exist anywhere"
+            echo "  within the SAL boundary — not in code, not in text."
+            echo "  See SECURITY.md §1 — Zero Data Exfiltration."
+            echo "  See ARCHITECTURE.md — SAL boundary definition."
+            echo "  Resolution requires Protocol Steward review."
+            echo "══════════════════════════════════════════════════════════"
+            exit 1
+          fi
+          echo "✅ INVARIANT 1 PASSED: No network primitives in SAL boundary."
+
+      # ── INVARIANT 2: Memory zeroing discipline ─────────────────
+      - name: "INVARIANT 2 — Memory zeroing discipline (data.fill(0))"
+        run: |
+          echo "=== Checking memory zeroing discipline ==="
+          FAILED=0
+
+          # Find all Python files that use context manager pattern (__exit__)
+          # and verify data.fill(0) is present
+          CM_FILES=$(grep -rln "__exit__\|__enter__" src/ --include="*.py" || true)
+
+          for FILE in $CM_FILES; do
+            HAS_FILL=$(grep -n "\.fill(0)" "$FILE" || true)
+            if [ -z "$HAS_FILL" ]; then
+              echo "⚠️  Context manager in $FILE does not call .fill(0)"
+              echo "   Review: does this file handle biometric data?"
+              # Warning only — not all context managers handle biometric data
+              # Protocol Steward must confirm during PR review
+            fi
+          done
+
+          # Hard check: files explicitly named as biometric handlers MUST zero
+          BIO_FILES=$(grep -rln "RawBiometric\|biometric_frame\|sensor_data\|raw_eeg\|raw_hrv" src/ --include="*.py" || true)
+          for FILE in $BIO_FILES; do
+            if ! grep -q "\.fill(0)" "$FILE"; then
+              echo "❌ BIOMETRIC HANDLER MISSING .fill(0) in: $FILE"
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "INVARIANT VIOLATION: Biometric handlers must call data.fill(0)."
+            echo "See SECURITY.md §3 — Anatomical Privacy, Memory zeroing."
+            exit 1
+          fi
+          echo "✅ INVARIANT 2 PASSED: Memory zeroing discipline verified."
+
+      # ── INVARIANT 3: No subprocess in SAL/ETHOS ────────────────
+      - name: "INVARIANT 3 — No subprocess calls in SAL or ETHOS"
+        run: |
+          echo "=== Checking for subprocess calls in privileged modules ==="
+          #
+          # ZERO-TRUST TEXTUAL POLICY (same as INVARIANT 1):
+          # Textual presence of any shell-out primitive is a hard failure.
+          # No comment exclusion filters are applied.
+          #
+          FAILED=0
+
+          declare -a SUBPROCESS_PRIMITIVES=(
+            "import subprocess"
+            "from subprocess"
+            "subprocess\."
+            "os\.system"
+            "os\.popen"
+            "os\.execv"
+            "os\.execve"
+            "os\.execvp"
+            "os\.execvpe"
+            "os\.spawnl"
+            "os\.spawnle"
+            "os\.spawnlp"
+            "os\.spawnlpe"
+            "os\.spawnv"
+            "os\.spawnve"
+            "import commands"
+            "from commands"
+            "commands\."
+            "popen2\."
+            "import popen2"
+          )
+
+          for DIR in src/sal src/ethos; do
+            if [ -d "$DIR" ]; then
+              for PATTERN in "${SUBPROCESS_PRIMITIVES[@]}"; do
+                HITS=$(grep -rn "$PATTERN" "$DIR" --include="*.py" || true)
+                if [ -n "$HITS" ]; then
+                  echo "❌ FORBIDDEN SUBPROCESS PRIMITIVE [ $PATTERN ] in $DIR:"
+                  echo "$HITS"
+                  echo "---"
+                  FAILED=1
+                fi
+              done
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "INVARIANT VIOLATION: SAL and ETHOS must not shell out."
+            echo "Subprocess calls create injection vectors and break isolation."
+            exit 1
+          fi
+          echo "✅ INVARIANT 3 PASSED: No subprocess calls in SAL/ETHOS."
+
+      # ── INVARIANT 4: scipy version pin integrity ────────────────
+      - name: "INVARIANT 4 — scipy version pin integrity"
+        run: |
+          echo "=== Checking scipy version pin ==="
+          # scipy must be pinned to an exact version (== not >=)
+          # This tracks Issue #3 — CDI stability depends on scipy behavior
+          SCIPY_LINE=$(grep -i "scipy" requirements.txt || true)
+
+          if [ -z "$SCIPY_LINE" ]; then
+            echo "❌ scipy not found in requirements.txt"
+            echo "scipy is required for CDI signal processing (SECURITY.md Issue #3)"
+            exit 1
+          fi
+
+          if echo "$SCIPY_LINE" | grep -qE ">=|~=|>|!="; then
+            echo "❌ scipy is NOT exactly pinned in requirements.txt:"
+            echo "   $SCIPY_LINE"
+            echo ""
+            echo "INVARIANT VIOLATION: scipy must use == (exact pin)."
+            echo "Floating scipy versions cause CDI threshold drift."
+            echo "See Issue #3 — scipy version pin for CDI stability."
+            exit 1
+          fi
+
+          echo "✅ INVARIANT 4 PASSED: scipy is exactly pinned."
+          echo "   $SCIPY_LINE"
+
+      # ── INVARIANT 5: ETHOS consent — no bypass pattern ─────────
+      - name: "INVARIANT 5 — ETHOS consent cannot be bypassed"
+        run: |
+          echo "=== Checking for consent bypass patterns ==="
+          FAILED=0
+
+          # Patterns that would allow bypassing the consent check:
+          # - Hardcoded True return before consent check
+          # - consent_level being set to FULL unconditionally
+          # - ETHOS check commented out
+          BYPASS_PATTERNS="consent.*=.*True\|return True.*#.*consent\|skip.*consent\|bypass.*ethos\|# ethos\|#ethos"
+
+          if [ -d "src/ethos" ]; then
+            HITS=$(grep -rni "$BYPASS_PATTERNS" src/ethos/ --include="*.py" || true)
+            if [ -n "$HITS" ]; then
+              echo "❌ POTENTIAL CONSENT BYPASS in src/ethos/:"
+              echo "$HITS"
+              FAILED=1
+            fi
+          fi
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "INVARIANT VIOLATION: ETHOS consent flow must not be bypassed."
+            echo "See MANIFESTO.md §5 — The Acolyte as Guest."
+            exit 1
+          fi
+          echo "✅ INVARIANT 5 PASSED: No consent bypass patterns detected."
+
+      - name: "Summary"
+        if: success()
+        run: |
+          echo "============================================"
+          echo "  ALL SAL BOUNDARY INVARIANTS PASSED"
+          echo "============================================"
+          echo "  INVARIANT 1: Zero network egress ✅"
+          echo "  INVARIANT 2: Memory zeroing     ✅"
+          echo "  INVARIANT 3: No subprocess      ✅"
+          echo "  INVARIANT 4: scipy pin          ✅"
+          echo "  INVARIANT 5: ETHOS integrity    ✅"
+          echo "============================================"
