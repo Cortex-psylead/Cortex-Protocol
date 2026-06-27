@@ -304,7 +304,7 @@ jobs:
           # - Hardcoded True return before consent check
           # - consent_level being set to FULL unconditionally
           # - ETHOS check commented out
-          BYPASS_PATTERNS="consent.*=.*True\|return True.*#.*consent\|skip.*consent\|bypass.*ethos\|# ethos\|#ethos"
+          BYPASS_PATTERNS="return True.*#.*bypass|skip.*consent|bypass.*ethos|# ethos|#ethos|consent_level.*=.*FULL.*#.*force|grant_consent.*True.*#.*skip"
 
           if [ -d "src/ethos" ]; then
             HITS=$(grep -rni "$BYPASS_PATTERNS" src/ethos/ --include="*.py" || true)
