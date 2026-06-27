@@ -82,7 +82,7 @@ jobs:
         uses: github/codeql-action/autobuild@4f3212b61783c3c68e8309a0f18a699764811cda  # v3.27.1
 
       - name: "Perform CodeQL Analysis"
-        uses: github/codeql-action/analyze@4f3212b61783c3c68e8309a0f18a699764811cda  # v3.27.1
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
         with:
           category: "codeql-python"
           # upload: true (default) — posts results to GitHub Security tab
