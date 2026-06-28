@@ -33,6 +33,21 @@ python tests/test_cognitive_shield.py
 
 Expected output: **23 tests, 23 passed.**
 
+### 🤖 Termux (Android ARM64)
+
+Standard `pip install -r requirements.txt` does not work on Android ARM64
+because scipy and numpy require Fortran/C compilation. Use Termux native
+package manager instead:
+
+```bash
+pkg install python-numpy python-scipy matplotlib -y
+python src/sal/cognitive_shield.py
+```
+
+Expected output: baseline establishment, CDI block event, and
+`cortex_demo.png` saved in the project root.
+
+
 ---
 
 ## 📐 What the Standard Defines
