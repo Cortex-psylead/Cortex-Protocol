@@ -8,12 +8,11 @@ description: An Open Standard for Neurophysiological Data Sovereignty in Human-A
 
 ### An Open Standard for Neurophysiological Data Sovereignty in Human-AI Interaction
 
-[
 
-![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)
+[License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)
 
-](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/LICENSE)
-[
+(https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/LICENSE)
+
 
 ![Milestone 0](https://img.shields.io/badge/Milestone_0-Locked_✅-brightgreen)
 
