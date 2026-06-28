@@ -48,12 +48,18 @@ Think of it as what **HTTPS did for web security**, applied to the human nervous
 
 ## Quick Start
 
+
     git clone https://github.com/Cortex-psylead/Cortex-Protocol
+    
     cd Cortex-Protocol
+    
     pkg install python-numpy python-scipy matplotlib -y
+    
     python src/sal/cognitive_shield.py
 
+
 Expected output: baseline establishment, CDI block event, and `cortex_demo.png` saved in the project root.
+
 
 ---
 
