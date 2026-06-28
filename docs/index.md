@@ -8,22 +8,11 @@ description: An Open Standard for Neurophysiological Data Sovereignty in Human-A
 
 ### An Open Standard for Neurophysiological Data Sovereignty in Human-AI Interaction
 
-[
-
-![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)
-
-](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/LICENSE) [
-
-![Milestone 0](https://img.shields.io/badge/Milestone_0-Locked-brightgreen)
-
-](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/ROADMAP.md) [
-
-![Standard: RFC v0.1](https://img.shields.io/badge/Standard-RFC_v0.1-orange)
-
-](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/STANDARD.md)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/LICENSE)
+[![Milestone 0](https://img.shields.io/badge/Milestone_0-Locked_🔒-brightgreen)](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/ROADMAP.md)
+[![Standard: RFC v0.1](https://img.shields.io/badge/Standard-RFC_v0.1-orange)](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/STANDARD.md)
 
 > *"The standard does not need to be everywhere. It needs to make everywhere safer."*
-
 ---
 
 ## What is Cortex Protocol?
@@ -87,3 +76,4 @@ GNU GPL v3 — permanently open. No entity can make this standard proprietary.
 ---
 
 [GitHub Repository](https://github.com/Cortex-psylead/Cortex-Protocol) · [Contributing](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/CONTRIBUTING.md) · [Security](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/SECURITY.md)
+
