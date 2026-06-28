@@ -5,84 +5,78 @@ description: An Open Standard for Neurophysiological Data Sovereignty in Human-A
 ---
 
 <style>
-  body {
-    background-color: #0d1117;
-    color: #c9d1d9;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  /* Forzar el fondo global y tipografía premium */
+  body, .markdown-body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
     max-width: 850px;
     margin: 0 auto;
     padding: 40px 20px;
     line-height: 1.6;
   }
-  h1, h2, h3 {
-    color: #f0f6fc;
-    border-bottom: 1px solid #21262d;
+
+  /* Corrección absoluta de Encabezados */
+  h1, h2, h3, h4, .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+    color: #f0f6fc !important;
+    font-weight: 600 !important;
+    border-bottom: 1px solid #21262d !important;
     padding-bottom: 8px;
-    margin-top: 24px;
+    margin-top: 32px;
   }
-  h1 { font-size: 2em; }
-  h2 { font-size: 1.5em; }
-  h3 { font-size: 1.25em; border-bottom: none; }
-  a {
-    color: #58a6ff;
-    text-decoration: none;
+  h1 { font-size: 2.2em !important; border-bottom: none !important; }
+  h3 { font-size: 1.3em !important; border-bottom: none !important; color: #8b949e !important; }
+
+  /* Enlaces estilizados */
+  a, .markdown-body a {
+    color: #58a6ff !important;
+    text-decoration: none !important;
+    font-weight: 500;
   }
-  a:hover {
-    text-decoration: underline;
+  a:hover { text-decoration: underline !important; }
+
+  /* SOLUCIÓN AL BUG DE TABLAS: Forzar colores oscuros sobre la plantilla */
+  table, tr, td, th, .markdown-body table, .markdown-body tr, .markdown-body td, .markdown-body th {
+    background-color: #161b22 !important;
+    color: #e6edf3 !important;
+    border: 1px solid #30363d !important;
   }
-  code {
-    background-color: rgba(110, 118, 129, 0.4);
-    padding: 0.2em 0.4em;
-    border-radius: 6px;
-    color: #ff7b72;
-    font-size: 85%;
-    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+  th, .markdown-body th {
+    background-color: #21262d !important;
+    color: #f0f6fc !important;
+    font-weight: 600 !important;
   }
-  pre {
-    background-color: #161b22;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #30363d;
-    overflow-x: auto;
+  tr:nth-child(even) { background-color: #0d1117 !important; }
+
+  /* SOLUCIÓN AL BUG DE CÓDIGO (Quick Start invisible) */
+  div.highlighter-rouge, pre, code, .highlight, .markdown-body pre, .markdown-body code {
+    background-color: #161b22 !important;
+    color: #ff7b72 !important; /* Color de comando llamativo */
+    border: 1px solid #30363d !important;
+    border-radius: 8px !important;
   }
-  pre code {
-    background-color: transparent;
-    padding: 0;
-    color: #e6edf3;
-    font-size: 90%;
+  pre, y pre code {
+    font-family: 'JetBrains Mono', monospace !important;
+    color: #e6edf3 !important;
+    padding: 16px !important;
   }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 24px 0;
-  }
-  th, td {
-    padding: 12px;
-    border: 1px solid #30363d;
-    text-align: left;
-  }
-  th {
-    background-color: #161b22;
-    color: #f0f6fc;
-  }
-  tr:nth-child(even) {
-    background-color: #161b22;
-  }
-  blockquote {
-    border-left: 4px solid #388bfd;
-    background-color: #111827;
-    color: #8b949e;
-    padding: 10px 16px;
-    margin: 20px 0;
+
+  /* Cita de Autor con Efecto de Brillo Criptográfico */
+  blockquote, .markdown-body blockquote {
+    border-left: 4px solid #00f2fe !important;
+    background: linear-gradient(90deg, #111827 0%, #1f2937 100%) !important;
+    color: #acbac7 !important;
+    padding: 16px !important;
+    margin: 24px 0 !important;
     border-radius: 0 8px 8px 0;
+    box-shadow: 0 4px 20px rgba(0, 242, 254, 0.08);
   }
-  blockquote p { margin: 0; }
-  hr {
-    height: 1px;
-    background-color: #30363d;
-    border: none;
-    margin: 32px 0;
-  }
+
+  /* Ajustes estéticos extras */
+  hr { background-color: #30363d !important; height: 1px !important; border: none !important; }
+  li { margin-bottom: 6px; }
 </style>
 
 # 🧠 Cortex Protocol
