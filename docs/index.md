@@ -8,16 +8,15 @@ description: An Open Standard for Neurophysiological Data Sovereignty in Human-A
 
 ### An Open Standard for Neurophysiological Data Sovereignty in Human-AI Interaction
 
-
-[License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)
-
-(https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/LICENSE)
-
-
-![Milestone 0](https://img.shields.io/badge/Milestone_0-Locked_✅-brightgreen)
-
-](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/ROADMAP.md)
 [
+
+![License: GPL v3](https://img.shields.io/badge/License-GPL_v3-blue.svg)
+
+](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/LICENSE) [
+
+![Milestone 0](https://img.shields.io/badge/Milestone_0-Locked-brightgreen)
+
+](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/ROADMAP.md) [
 
 ![Standard: RFC v0.1](https://img.shields.io/badge/Standard-RFC_v0.1-orange)
 
@@ -29,7 +28,7 @@ description: An Open Standard for Neurophysiological Data Sovereignty in Human-A
 
 ## What is Cortex Protocol?
 
-Cortex Protocol is an open, royalty-free technical standard for protecting neurophysiological data sovereignty in any system where an AI agent interacts with human biometric data.
+Cortex Protocol is an open, royalty-free technical standard for protecting neurophysiological data sovereignty when an AI agent interacts with human biometric data.
 
 Think of it as what **HTTPS did for web security**, applied to the human nervous system.
 
@@ -38,7 +37,7 @@ Think of it as what **HTTPS did for web security**, applied to the human nervous
 ## Core Guarantees
 
 | Guarantee | Mechanism |
-|-----------|-----------|
+| :--- | :--- |
 | Raw biometric data never leaves your device | SAL air-gap boundary |
 | AI agents receive only anonymized tensors | Two-phase HMAC transformation |
 | Clinical thresholds are cryptographically enforced | White Branch signed CCMs |
@@ -47,25 +46,19 @@ Think of it as what **HTTPS did for web security**, applied to the human nervous
 
 ## Quick Start
 
-
     git clone https://github.com/Cortex-psylead/Cortex-Protocol
-    
     cd Cortex-Protocol
-    
     pkg install python-numpy python-scipy matplotlib -y
-    
     python src/sal/cognitive_shield.py
 
-
 Expected output: baseline establishment, CDI block event, and `cortex_demo.png` saved in the project root.
-
 
 ---
 
 ## Documentation
 
 | Document | Description |
-|----------|-------------|
+| :--- | :--- |
 | [Architecture](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/ARCHITECTURE.md) | System layers and sovereignty loop |
 | [Clinical Bridge](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/CLINICAL-BRIDGE.md) | Evidence-based clinical protocols |
 | [Governance](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/GOVERNANCE.md) | Governance roles and anti-capture provisions |
@@ -90,5 +83,7 @@ We need three types of collaborators:
 ## License
 
 GNU GPL v3 — permanently open. No entity can make this standard proprietary.
+
+---
 
 [GitHub Repository](https://github.com/Cortex-psylead/Cortex-Protocol) · [Contributing](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/CONTRIBUTING.md) · [Security](https://github.com/Cortex-psylead/Cortex-Protocol/blob/main/SECURITY.md)
