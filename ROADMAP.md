@@ -7,7 +7,7 @@
 ---
 
 ## 🎯 Milestone 0: The Cognitive Shield
-**Status: ✅ Complete | Period: April–June 2025**
+**Status: ✅ Complete | Period: April–June 2026**
 
 The foundational Proof of Concept demonstrating that a clinically governed, mathematically verifiable sovereignty layer between biometric sensors and AI agents is technically feasible.
 
@@ -32,7 +32,7 @@ The foundational Proof of Concept demonstrating that a clinically governed, math
 ---
 
 ## ⚙️ Milestone 1: Clinical Validation & First Governance Node
-**Status: 🔍 In progress | Target: Q4 2025 – Q1 2027**
+**Status: 🔍 In progress | Target: Q4 2026 – Q1 2027**
 
 The transition from simulated signals to validated clinical data. This milestone establishes the first institutional partnership and produces the first peer-reviewed output.
 
