@@ -7,7 +7,7 @@
 ---
 
 ## 🎯 Milestone 0: The Cognitive Shield
-**Status: ✅ Complete | Period: April–June 2025**
+**Status: ✅ Complete | Period: April–June 2026**
 
 The foundational Proof of Concept demonstrating that a clinically governed, mathematically verifiable sovereignty layer between biometric sensors and AI agents is technically feasible.
 
@@ -32,7 +32,7 @@ The foundational Proof of Concept demonstrating that a clinically governed, math
 ---
 
 ## ⚙️ Milestone 1: Clinical Validation & First Governance Node
-**Status: 🔍 In progress | Target: Q4 2025 – Q1 2027**
+**Status: 🔍 In progress | Target: Q3 2026 – Q2 2027**
 
 The transition from simulated signals to validated clinical data. This milestone establishes the first institutional partnership and produces the first peer-reviewed output.
 
@@ -71,7 +71,7 @@ The transition from simulated signals to validated clinical data. This milestone
 ---
 
 ## 🛡️ Milestone 2: The Acolyte SDK
-**Status: ⏳ Not started | Target: Q1 2027 – Q1 2028**
+**Status: ⏳ Not started | Target: Q3 2027 – Q3 2028**
 
 The protocol becomes adoptable by external developers. The Acolyte SDK is the mechanism by which therapeutic AI developers can build Cortex-Certified applications.
 
@@ -101,7 +101,7 @@ The protocol becomes adoptable by external developers. The Acolyte SDK is the me
 ---
 
 ## 🌐 Milestone 3: Universal Sovereign Standard
-**Status: ⏳ Not started | Target: Q1 2028+**
+**Status: ⏳ Not started | Target: Q4 2028+**
 
 The Cortex Protocol transitions from a project to a standard. Governance is distributed across an international network of independent nodes. The protocol is hardware-manufacturer-adoptable.
 
