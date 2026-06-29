@@ -13,7 +13,7 @@ matplotlib==3.10.3
 # INVARIANT 4: scipy minor versions affect CDI thresholds.
 # Version changes require Protocol Steward + White Branch review.
 scipy==1.15.3
-pytest==9.0.3
+pytest==9.1.1
 
 # Optional: real EEG/biometric sensor support (install as needed)
 # mne>=1.4.0          # EEG processing — Muse, OpenBCI, BrainFlow
