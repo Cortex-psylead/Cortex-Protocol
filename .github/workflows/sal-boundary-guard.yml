@@ -39,14 +39,8 @@ name: "SAL Boundary Guard — Protocol Invariants"
 on:
   pull_request:
     branches: ["main", "develop"]
-    paths:
-      - "src/**"
-      - "requirements.txt"
   push:
     branches: ["main"]
-    paths:
-      - "src/**"
-      - "requirements.txt"
 
 # ── Global permissions: deny everything ─────────────────────────
 permissions:
