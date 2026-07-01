@@ -6,6 +6,23 @@ This document is the authoritative reference for all terminology used across Cor
 
 ---
 
+## Part 0 — Institutional Terminology Bridge
+
+Cortex Protocol uses distinctive terminology (below) as its internal, community-facing voice. That voice is deliberate and stays unchanged in this document, GOVERNANCE.md, MANIFESTO.md, and CODE_OF_CONDUCT.md.
+
+For documents addressed to readers unfamiliar with the project — IRB submissions, grant applications, regulatory correspondence — use the sober equivalent on first mention, with the branded term in parentheses. This is a communication policy for prose only. Code identifiers, class names, module names, and directory paths are governed by SECURITY.md and MODULE-ISOLATION.md and are explicitly **not** affected by this table.
+
+| Branded term | Sober equivalent (institutional use) |
+| :--- | :--- |
+| Acolyte | AI Agent / Local AI Agent |
+| Malicious Acolyte | Adversarial AI Agent |
+| White Branch | Clinical Governance Board |
+| Protocol Steward | Technical Lead |
+| Judicial Kill Switch | Compliance-Driven Data Erasure Protocol |
+| The Pentagon / El Pentágono | Five-Module Architecture |
+| Cognitive Shield | (already sober — no substitution needed) |
+| Sovereignty Loop | (already sober — no substitution needed) |
+
 ## Part I — Proprietary Concepts (Cortex Original)
 
 **White Branch** *(ES: Rama Blanca / Tribunal de Ética)*
