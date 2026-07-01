@@ -38,7 +38,6 @@ import threading
 import time
 from collections import deque
 from dataclasses import dataclass
-from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
@@ -47,6 +46,13 @@ from scipy.signal import hilbert as _hilbert
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), ".."))
 from sal.state_buffer import BiometricStateMachine
+from ethos.ethos_consent import (
+    EthosEngine,
+    DemoEthosEngine,
+    ConsentCapacity,
+    ConsentScope,
+    ConsentRecord,
+)
 
 
 # ============================================================================
@@ -459,159 +465,20 @@ class LimesEngine:
 
 # ============================================================================
 # 6. ETHOS — Dynamic Consent (physiologically grounded)
-# [v2-FIX-01] NONE checked before LIMITED
-# [v2-FIX-03] auto_revoke only on NONE
-# [v2-FIX-07] is_active() atomic check
-# [v2-FIX-14] _double_confirm raises NotImplementedError in base class
-# ============================================================================
-
-class ConsentCapacity(Enum):
-    FULL    = "full"     # Ventral vagal — normal consent
-    LIMITED = "limited"  # Sympathetic — requires double confirmation
-    NONE    = "none"     # Dorsal vagal / CDI blocked — consent invalid
-
-
-class ConsentScope(Enum):
-    BIOMETRIC      = "biometric"
-    ACOLYTE        = "acolyte"
-    AUDIO          = "audio"
-    LOCATION       = "location"
-
-
-@dataclass
-class ConsentRecord:
-    id:         str
-    scope:      ConsentScope
-    granted_at: float
-    expires_at: float
-    revoked:    bool = False
-
-    def is_active(self) -> bool:  # [v2-FIX-07]
-        """Atomic expiry + revocation check."""
-        return not self.revoked and time.time() < self.expires_at
-
-
-class EthosEngine:
-    """
-    Physiologically-grounded dynamic consent engine.
-
-    Polyvagal capacity mapping:
-      FULL    → CDI clear, 0–1 hard violations
-      LIMITED → 2 hard violations (double confirmation required)
-      NONE    → CDI blocked OR ≥3 hard violations (consent refused)
-
-    [v2-FIX-01] Corrected capacity ordering: NONE before LIMITED.
-    [v2-FIX-14] _double_confirm raises NotImplementedError in base class.
-                Use DemoCognitiveShield for PoC — never the base class.
-    """
-
-    def __init__(self, cortex_shield: "CognitiveShield"):
-        self._cortex  = cortex_shield
-        self._records: Dict[str, ConsentRecord] = {}
-
-    def get_capacity(self) -> ConsentCapacity:
-        """[v2-FIX-01] NONE takes absolute priority over LIMITED."""
-        status = self._cortex.get_cdi_status()
-        if status.get("blocked", False):
-            return ConsentCapacity.NONE
-        hard = status.get("hard_violations", 0)
-        if hard >= 3:                          # checked FIRST
-            return ConsentCapacity.NONE
-        if hard >= 2:
-            return ConsentCapacity.LIMITED
-        return ConsentCapacity.FULL
-
-    def request_consent(
-        self,
-        scope: ConsentScope,
-        duration_seconds: int = ClinicalThresholds.ETHOS_DEFAULT_CONSENT_TTL,
-    ) -> bool:
-        cap = self.get_capacity()
-        if cap == ConsentCapacity.NONE:
-            print(f"[ETHOS] ❌ Consent refused — dorsal vagal / CDI blocked (scope={scope.value})")
-            return False
-        if cap == ConsentCapacity.LIMITED:
-            print(f"[ETHOS] ⚠️  Limited capacity — double confirmation required (scope={scope.value})")
-            if not self._double_confirm(scope):
-                print("[ETHOS] ❌ Double confirmation not completed")
-                return False
-
-        record_id = hashlib.sha256(
-            f"{scope.value}{time.time()}{secrets.token_hex(4)}".encode()
-        ).hexdigest()[:12]
-
-        self._records[record_id] = ConsentRecord(
-            id=record_id,
-            scope=scope,
-            granted_at=time.time(),
-            expires_at=time.time() + duration_seconds,
-        )
-        print(
-            f"[ETHOS] ✅ Consent granted — scope={scope.value}, "
-            f"capacity={cap.value}, expires_in={duration_seconds}s, id={record_id}"
-        )
-        return True
-
-    def revoke_consent(self, consent_id: str) -> bool:
-        if consent_id in self._records:
-            self._records[consent_id].revoked = True
-            print(f"[ETHOS] 🔒 Consent revoked: {consent_id}")
-            return True
-        return False
-
-    def revoke_all(self):
-        count = sum(1 for r in self._records.values() if r.is_active())
-        for r in self._records.values():
-            r.revoked = True
-        print(f"[ETHOS] 🔒 All consents revoked ({count} active records)")
-
-    def check_consent(self, scope: ConsentScope) -> bool:
-        return any(r.scope == scope and r.is_active() for r in self._records.values())
-
-    def auto_revoke_on_dysregulation(self):
-        """
-        [v2-FIX-03] Revokes ONLY when capacity is NONE (dorsal vagal / blocked).
-        Sympathetic engagement (LIMITED) does NOT trigger auto-revocation —
-        stressed-but-capable users retain their active consents.
-        """
-        if self.get_capacity() == ConsentCapacity.NONE:
-            if any(r.is_active() for r in self._records.values()):
-                self.revoke_all()
-                print("[ETHOS] 🔒 Auto-revocation: dorsal vagal / CDI blocked state")
-
-    def get_audit_log(self) -> List[Dict]:
-        """Consent history — no biometric data, no user identifiers."""
-        return [
-            {
-                "id":         r.id,
-                "scope":      r.scope.value,
-                "granted_at": r.granted_at,
-                "expires_at": r.expires_at,
-                "revoked":    r.revoked,
-                "active":     r.is_active(),
-            }
-            for r in self._records.values()
-        ]
-
-    def _double_confirm(self, scope: ConsentScope) -> bool:
-        """
-        [v2-FIX-14] Base class raises NotImplementedError.
-
-        Override this method in a subclass to implement the real confirmation
-        UI (timed gesture, PIN, voice command). The PoC uses DemoCognitiveShield,
-        which auto-confirms with an explicit warning.
-
-        Rationale: returning True silently here means a developer who deploys
-        the base class in production has a system that approves all LIMITED-
-        capacity consents automatically — indistinguishable from no gate at all.
-        Failing loudly forces the correct override.
-        """
-        raise NotImplementedError(
-            "EthosEngine._double_confirm() must be overridden in production. "
-            "The base class does NOT auto-confirm. "
-            "Use DemoCognitiveShield for PoC environments."
-        )
-
+#
+# EthosEngine, ConsentCapacity, ConsentScope, and ConsentRecord are imported
+# from the canonical standalone module src/ethos/ethos_consent.py (see the
+# import block near the top of this file) rather than duplicated here.
+#
+# This removes the implementation drift that existed between this file and
+# the standalone module prior to this refactor: divergent method names
+# (get_capacity()/_double_confirm() vs. get_consent_capacity()/
+# _double_confirmation()) and a divergent request_consent() signature
+# (this file's version previously lacked the `purpose` parameter).
+#
+# Behavior is characterized by tests/test_ethos_consent.py (20 tests).
+# The end-to-end integration through this file is pinned by
+# tests/test_cognitive_shield_v2_smoke.py.
 
 # ============================================================================
 # 7. INTEGRATED COGNITIVE SHIELD
@@ -834,34 +701,19 @@ class CognitiveShield:
 class DemoCognitiveShield(CognitiveShield):
     """
     PoC / automated-test subclass.
-    Auto-confirms double confirmation with an explicit console warning.
+    Uses DemoEthosEngine (src/ethos/ethos_consent.py) to auto-confirm
+    double confirmation, with an explicit console warning on every use.
 
     ⚠️  NEVER use in production. The warning is the contract.
-    The base CognitiveShield raises NotImplementedError on _double_confirm().
+    The base CognitiveShield's EthosEngine raises NotImplementedError on
+    _double_confirmation() -- DemoEthosEngine is the sanctioned override,
+    swapped in below instead of monkey-patching the instance after
+    construction.
     """
 
-    def _double_confirm_ethos(self, scope: ConsentScope) -> bool:
-        print(
-            f"[ETHOS][DEMO] ⚠️  Auto-confirming double confirmation — "
-            f"scope={scope.value}. FOR DEMO ONLY. Override in production."
-        )
-        return True
-
-
-# Patch DemoCognitiveShield's EthosEngine at instantiation
-# so the subclass override reaches through to the engine's method.
-_original_demo_init = DemoCognitiveShield.__init__
-
-def _demo_init(self):
-    _original_demo_init(self)
-    # Bind the demo confirm method into the already-constructed EthosEngine
-    import types
-    self.ethos._double_confirm = types.MethodType(
-        lambda engine, scope: self._double_confirm_ethos(scope),
-        self.ethos,
-    )
-
-DemoCognitiveShield.__init__ = _demo_init
+    def __init__(self):
+        super().__init__()
+        self.ethos = DemoEthosEngine(self)
 
 
 # ============================================================================
