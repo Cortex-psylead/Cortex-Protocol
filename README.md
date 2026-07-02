@@ -14,6 +14,8 @@ Think of it as what HTTPS did for web security, applied to the human nervous sys
 
 ---
 
+> **A note on terminology:** This project uses distinctive names for its components (Acolyte, White Branch, Judicial Kill Switch, etc.) as part of its community voice. A plain-language equivalence table for institutional, clinical, or regulatory contexts is maintained in **Part 0** of [LEXICON.md](LEXICON.md).
+
 ## 🚀 Quick Start
 
 ```bash

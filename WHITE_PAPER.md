@@ -3,6 +3,8 @@
 
 ---
 
+> **A note on terminology:** This document uses the project's distinctive internal vocabulary (Acolyte, White Branch, Judicial Kill Switch, etc.). A plain-language equivalence table for institutional, clinical, and regulatory contexts is maintained in **Part 0** of [LEXICON.md](LEXICON.md).
+
 ## Abstract
 
 The Cortex Protocol establishes a mathematically verifiable sovereignty layer between biometric sensors and artificial intelligence agents. This document specifies the clinical and technical architecture of **Milestone 0: The Cognitive Shield**, detailing the Sovereignty Abstraction Layer (SAL), the Clinical Drift Index (CDI), and the evidence base that governs every safety threshold. All parameters cited herein are derived from peer-reviewed literature and are enforceable as hardware constraints via the White Branch governance mechanism.
