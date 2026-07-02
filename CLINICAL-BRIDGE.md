@@ -44,6 +44,32 @@ Based on validated sensory integration theories and **Polyvagal Theory**, the pr
 - **Compute Agnosticism:** The protocol utilizes any available local acceleration (Discrete GPU, Integrated NPU, or High-Performance DSP) to process sensory data in real-time.
 - **Universal Deployment:** Whether running on a mobile chipset, a high-end desktop, or a localized workstation, the safety margins remain identical.
 ---
+## 🔬 Module 3: Validation Roadmap — Coherency Index (CV) as an HRV/RMSSD Proxy
+
+### Clinical Basis
+The Clinical Drift Index's Coherency Index (CV = std/mean of the Hilbert-transformed signal envelope) is the single largest unvalidated scientific claim in the protocol (see DISCLAIMER.md §4.2, WHITE_PAPER.md §7.3). It is grounded in general HRV literature (Shaffer & Ginsberg, 2017) as a normalized variability metric, but has not been directly validated against RMSSD computed from real R-R intervals using this specific implementation.
+
+### Proposed Validation Protocol
+
+**Population:** Healthy adult volunteers, resting/seated conditions. Illustrative minimum n=30 for an initial pilot correlation (comparable to published wearable-vs-reference HRV validation studies); a fully powered confirmatory study (target n≥50, exact figure pending formal power calculation) is the Milestone 1 objective. **Sample size and success criteria below are a proposed starting point, not a finalized protocol** — they require sign-off from a clinical/biostatistics collaborator before use in any IRB-equivalent submission (see GOVERNANCE.md, Transitional Governance note).
+
+**Reference (gold-standard) signal:** Simultaneous R-R interval acquisition via a research-grade chest strap (e.g., Polar H10) or clinical ECG, computing true RMSSD per Task Force ESC/NASPE (1996) methodology.
+
+**Test signal:** CORTEX pipeline's Hilbert-envelope CV, computed in parallel from EEG or PPG session data on BrainFlow-supported hardware (OpenBCI Cyton, Muse 2).
+
+**Metrics:**
+- Pearson/Spearman correlation between session-level CV and session-level RMSSD.
+- Bland-Altman agreement analysis.
+- Sensitivity/specificity of CV-derived polyvagal state classification (ventral/sympathetic/dorsal) against RMSSD-derived reference thresholds.
+
+**Illustrative success criterion:** r ≥ 0.6 (moderate-to-strong correlation) as a starting bar for continued use of CV as an RMSSD proxy in the Clinical Bridge. This threshold itself requires White Branch / Governance Node approval *before* the study runs, not after.
+
+**If validation fails:** The CV proxy claim is deprecated. The Clinical Bridge and CDI thresholds are recalibrated to require direct RMSSD computation from certified cardiac sensors (≥250 Hz sampling, per STANDARD.md §2.5.1), rather than the EEG-envelope approximation.
+
+### Status
+Not started. This is the explicit Milestone 1 research question (ROADMAP.md) and the primary criterion for CORTEX reaching "Clinically Validated" conformance (STANDARD.md Part IV). Requires an independent Governance Node partner (Issue #5) for IRB-equivalent oversight and unbiased data collection.
+
+---
 ## 📚 Master Reference List: The Scientific Basis
 The following research forms the non-negotiable basis for the Cortex Clinical Modules:
 * **Porges, S.W. (2011).** *The Polyvagal Theory: Neurophysiological Foundations of Emotions, Attachment, Communication, and Self-regulation.*
