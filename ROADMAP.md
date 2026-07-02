@@ -36,6 +36,14 @@ The foundational Proof of Concept demonstrating that a clinically governed, math
 
 The transition from simulated signals to validated clinical data. This milestone establishes the first institutional partnership and produces the first peer-reviewed output.
 
+**Module scope — CORTEX + ETHOS priority:** Milestone 1 concentrates engineering and clinical-validation effort on **CORTEX** (SAL, Clinical Bridge, CDI) and **ETHOS** (dynamic consent) — the two modules that require no exotic hardware and no unresolved open research question to reach Level 1/Level 2 conformance (STANDARD.md Part IV). **LIMES, KEROS, and LOGOS are explicitly deferred to Milestone 2 and later:**
+
+- **LIMES** — the liveness proof rests on a biological-entropy assumption with a stated temporal limit (DISCLAIMER.md §4.1); premature investment is exposed to fast-moving generative AI capability.
+- **KEROS** — requires real TPM 2.0 hardware; the reference implementation fails closed (`TPMUnavailableError`) without it, making it untestable in most current deployment environments.
+- **LOGOS** — the boundary between healthy cognitive offloading and pathological dependency is an open question in the literature (DISCLAIMER.md §4.3); shipping thresholds before this is resolved would mean enforcing unvalidated judgment calls.
+
+This narrows the near-term ask for grant applications and Governance Node outreach to a defensible, fully-specified, hardware-agnostic scope, validatable with commodity sensors (OpenBCI, Muse 2) and no institutional TPM procurement.
+
 **Progress to date:**
 - BrainFlow sensor adapter (PR #7) merged — first external contribution by @mayoka0
 - Hardware abstraction layer (`BiometricSensorAdapter`) specification underway (Issue #4)
@@ -74,6 +82,8 @@ The transition from simulated signals to validated clinical data. This milestone
 **Status: ⏳ Not started | Target: Q3 2027 – Q3 2028**
 
 The protocol becomes adoptable by external developers. The Acolyte SDK is the mechanism by which therapeutic AI developers can build Cortex-Certified applications.
+
+**Deferred module resumption:** LIMES, KEROS, and LOGOS work (Level 2/3 conformance) resumes here, contingent on real hardware/TPM access and further research clarity on the open questions named in Milestone 1's module scope note.
 
 **Objectives:**
 
