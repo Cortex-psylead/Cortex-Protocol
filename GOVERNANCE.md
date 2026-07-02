@@ -34,6 +34,8 @@ But governance is not a complete solution. This document is explicit about what 
 
 **What the White Branch does NOT control:** Implementation architecture, programming language choices, or performance optimizations that do not affect clinical safety margins.
 
+**Transitional Governance (Milestone 0–1):** As of this writing, the White Branch function is held by a single individual — the Protocol Steward, acting in both roles during this pre-institutional phase. This is a stated, temporary condition, not the governance design's target state. GOVERNANCE-BASE.md and the Anti-Capture Provisions above describe an independent, multi-member clinical body; a single-person White Branch cannot provide the peer review, citation scrutiny, or independent veto the role requires by design. Constituting the first independent Governance Node (ROADMAP.md Milestone 1, Issue #5) is the explicit path out of this condition. Until that Node exists, any threshold change merged under White Branch authority should be read with this limitation in mind.
+
 ---
 
 ### 2. 🛡️ Protocol Stewards (Technical Branch)
