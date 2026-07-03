@@ -27,6 +27,8 @@ python src/sal/cognitive_shield.py
 
 The demo runs in under 60 seconds and produces `cortex_demo.png` — a visual output of the full protection pipeline showing baseline establishment and CDI block event.
 
+![Cognitive Shield Demo — baseline establishment and CDI block event](docs/assets/cognitive-shield-demo.png)
+
 To run the test suite:
 
 ```bash
