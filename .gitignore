@@ -1,4 +1,4 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-cortex_demo.png
+/cortex_demo.png
