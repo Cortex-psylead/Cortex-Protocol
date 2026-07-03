@@ -3,7 +3,9 @@
 
 [![Milestone 0: Locked](https://img.shields.io/badge/Milestone-0--Locked-green.svg)](#-milestone-0-the-cognitive-shield)
 [![Standard: RFC](https://img.shields.io/badge/Standard-RFC%20v0.1-orange.svg)](STANDARD.md)
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/Cortex-psylead/Cortex-Protocol/ci.yml?branch=main&label=CI)](https://github.com/Cortex-psylead/Cortex-Protocol/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/Cortex-psylead/Cortex-Protocol)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/Cortex-psylead/Cortex-Protocol)](https://github.com/Cortex-psylead/Cortex-Protocol/releases/latest)
 [![Branch: Clinical/White](https://img.shields.io/badge/Branch-White%20(Clinical)-blue.svg)](GOVERNANCE.md)
 
 The **Cortex Protocol** is an open, royalty-free technical standard that defines the minimum requirements for protecting neurophysiological data sovereignty in any system where an AI agent interacts with human biometric data.
