@@ -68,7 +68,7 @@ jobs:
       # SHA pinned — github/codeql-action v3.27.1
       # Verify: https://github.com/github/codeql-action/releases/tag/v3.27.1
       - name: "Initialize CodeQL"
-        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
+        uses: github/codeql-action/init@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a  # v4.36.3
         with:
           languages: python
           # security-and-quality: covers OWASP Top 10 + code quality
@@ -79,10 +79,10 @@ jobs:
 
       # CodeQL auto-builds Python (no compilation needed)
       - name: "Autobuild"
-        uses: github/codeql-action/autobuild@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
+        uses: github/codeql-action/autobuild@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a  # v4.36.3
 
       - name: "Perform CodeQL Analysis"
-        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e  # v4.36.2
+        uses: github/codeql-action/analyze@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a  # v4.36.3
         with:
           category: "codeql-python"
           # upload: true (default) — posts results to GitHub Security tab
